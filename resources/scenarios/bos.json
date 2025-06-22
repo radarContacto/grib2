@@ -57715,7 +57715,7 @@
         }
       ],
       "wind": {
-        "direction": 110,
+        "direction": 90,
         "speed": 10
       },
             "grib_file": "weather/wind_test.json"

@@ -454,9 +454,15 @@ func (nav *Nav) OnExtendedCenterline(maxNmDeviation float32) bool {
 
 // Full human-readable summary of nav state for use when paused and mouse
 // hover on the scope
-func (nav *Nav) Summary(fp av.FlightPlan, lg *log.Logger) string {
+func (nav *Nav) Summary(fp av.FlightPlan, wind [2]float32, lg *log.Logger) string {
 	var lines []string
 	lines = append(lines, "Departure from "+fp.DepartureAirport+" to "+fp.ArrivalAirport)
+
+	// Report the wind being applied to the aircraft.
+	speed := math.Length2f(wind) * 3600
+	dirTo := math.Degrees(math.Atan2(wind[0], wind[1]))
+	dirFrom := math.OppositeHeading(dirTo)
+	lines = append(lines, fmt.Sprintf("Wind: %03ddeg %.1fkts", int(dirFrom+0.5), speed))
 
 	if nav.Altitude.Assigned != nil {
 		if math.Abs(nav.FlightState.Altitude-*nav.Altitude.Assigned) < 100 {

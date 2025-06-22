@@ -1402,9 +1402,10 @@ func (s *Sim) GetAircraftDisplayState(callsign av.ADSBCallsign) (AircraftDisplay
 	if ac, ok := s.Aircraft[callsign]; !ok {
 		return AircraftDisplayState{}, ErrNoMatchingFlight
 	} else {
+		wind := s.State.GetWindVector(ac.Position(), ac.Altitude())
 		return AircraftDisplayState{
 			Spew:        spew.Sdump(ac),
-			FlightState: ac.NavSummary(s.lg),
+			FlightState: ac.NavSummary(wind, s.lg),
 		}, nil
 	}
 }

@@ -1,7 +1,4 @@
-pkg/aviation/gribwind.go
-New
-+123
--0
+//pkg/aviation/gribwind.go
 
 package aviation
 

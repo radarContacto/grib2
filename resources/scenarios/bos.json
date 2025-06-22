@@ -57717,7 +57717,8 @@
       "wind": {
         "direction": 110,
         "speed": 10
-      }
+      },
+            "grib_file": "weather/wind_test.json"
     },
     "BOS 4L/9+4R": {
       "arrival_runways": [

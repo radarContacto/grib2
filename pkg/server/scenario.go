@@ -72,6 +72,8 @@ type scenario struct {
 	Range        float32       `json:"range"`
 	DefaultMaps  []string      `json:"default_maps"`
 	VFRRateScale *float32      `json:"vfr_rate_scale"`
+
+	GribFile string `json:"grib_file,omitempty"`
 }
 
 func (s *scenario) PostDeserialize(sg *scenarioGroup, e *util.ErrorLogger, manifest *sim.VideoMapManifest) {
@@ -1352,6 +1354,7 @@ func initializeSimConfigurations(sg *scenarioGroup,
 			DepartureRunways:    scenario.DepartureRunways,
 			ArrivalRunways:      scenario.ArrivalRunways,
 			PrimaryAirport:      sg.PrimaryAirport,
+			GribFile:            scenario.GribFile,
 		}
 
 		if multiController {

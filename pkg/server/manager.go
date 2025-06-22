@@ -75,6 +75,8 @@ type SimScenarioConfiguration struct {
 
 	DepartureRunways []sim.DepartureRunway
 	ArrivalRunways   []sim.ArrivalRunway
+
+	GribFile string
 }
 
 type activeSim struct {
@@ -102,6 +104,8 @@ type NewSimConfiguration struct {
 	Password        string
 
 	LiveWeather bool
+
+	GribFile string
 
 	AllowInstructorRPO  bool
 	Instructor          bool
@@ -268,6 +272,7 @@ func (sm *SimManager) makeSimConfiguration(config *NewSimConfiguration, lg *log.
 		Center:                  util.Select(sc.Center.IsZero(), sg.STARSFacilityAdaptation.Center, sc.Center),
 		Range:                   util.Select(sc.Range == 0, sg.STARSFacilityAdaptation.Range, sc.Range),
 		DefaultMaps:             sc.DefaultMaps,
+		GribFile:                sc.GribFile,
 		InboundFlows:            sg.InboundFlows,
 		Airspace:                sg.Airspace,
 		ControllerAirspace:      sc.Airspace,

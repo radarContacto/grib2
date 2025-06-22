@@ -137,14 +137,24 @@ func newState(config NewSimConfiguration, manifest *VideoMapManifest, lg *log.Lo
 		NmPerLongitude:    config.NmPerLongitude,
 		PrimaryAirport:    config.PrimaryAirport,
 
-		METAR: make(map[string]*av.METAR),
-		Wind:  config.Wind,
+		METAR:    make(map[string]*av.METAR),
+		Wind:     config.Wind,
+		GribWind: nil,
 
 		SimRate:        1,
 		SimDescription: config.Description,
 		SimTime:        time.Now(),
 
 		Instructors: make(map[string]bool),
+	}
+
+	if config.GribFile != "" {
+		gw, err := av.LoadGribWindModel(config.GribFile)
+		if err != nil {
+			lg.Errorf("%s: unable to load grib wind file: %v", config.GribFile, err)
+		} else {
+			ss.GribWind = gw
+		}
 	}
 
 	if manifest != nil {

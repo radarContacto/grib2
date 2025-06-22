@@ -74,8 +74,9 @@ type State struct {
 	NmPerLongitude    float32
 	PrimaryAirport    string
 
-	METAR map[string]*av.METAR
-	Wind  av.Wind
+	METAR    map[string]*av.METAR
+	Wind     av.Wind
+	GribWind *av.GribWindModel
 
 	TotalIFR, TotalVFR int
 
@@ -411,6 +412,10 @@ func (ss *State) GetInitialCenter() math.Point2LL {
 }
 
 func (ss *State) GetWindVector(p math.Point2LL, alt float32) [2]float32 {
+	if ss.GribWind != nil {
+		return ss.GribWind.GetWindVector(p, alt)
+	}
+
 	// Sinusoidal wind speed variation from the base speed up to base +
 	// gust and then back...
 	windSpeed := float32(ss.Wind.Speed)

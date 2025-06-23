@@ -753,10 +753,6 @@
               "category": "LEINY"
             }
           ],
-          "wind": {
-            "direction": 120,
-            "speed": 7
-          },
                "grib_file": "weather/msp_test.json"
         },
         "MSP 12R/L/17": {

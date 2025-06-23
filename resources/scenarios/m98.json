@@ -753,7 +753,7 @@
               "category": "LEINY"
             }
           ],
-               "grib_file": "weather/msp_test.json"
+               "grib_file": "weather/small_wind.json"
         },
         "MSP 12R/L/17": {
           "arrival_runways": [

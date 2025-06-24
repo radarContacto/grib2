@@ -1093,6 +1093,7 @@ func (s *Sim) createArrivalNoLock(group string, arrivalAirport string) (*Aircraf
 	if err != nil {
 		return nil, err
 	}
+	ac.Nav.Perf = s.scalePerformance(ac.Nav.Perf)
 
 	starsFp := STARSFlightPlan{
 		ACID:             ACID(ac.ADSBCallsign),
@@ -1256,6 +1257,7 @@ func (s *Sim) createIFRDepartureNoLock(departureAirport, runway, category string
 	if err != nil {
 		return nil, err
 	}
+	ac.Nav.Perf = s.scalePerformance(ac.Nav.Perf)
 
 	shortExit, _, _ := strings.Cut(dep.Exit, ".") // chop any excess
 	starsFp := STARSFlightPlan{
@@ -1344,6 +1346,7 @@ func (s *Sim) createOverflightNoLock(group string) (*Aircraft, error) {
 		s.State /* wind */, s.State.SimTime, s.lg); err != nil {
 		return nil, err
 	}
+	ac.Nav.Perf = s.scalePerformance(ac.Nav.Perf)
 
 	starsFp := STARSFlightPlan{
 		ACID:             ACID(ac.ADSBCallsign),
@@ -1538,6 +1541,7 @@ func (s *Sim) createUncontrolledVFRDeparture(depart, arrive, fleet string, route
 		s.State.NmPerLongitude, s.State.MagneticVariation, s.State /* wind */, s.lg); err != nil {
 		return nil, "", err
 	}
+	ac.Nav.Perf = s.scalePerformance(ac.Nav.Perf)
 
 	if s.bravoAirspace == nil || s.charlieAirspace == nil {
 		s.initializeAirspaceGrids()

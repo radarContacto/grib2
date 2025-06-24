@@ -177,6 +177,7 @@ type NewSimConfiguration struct {
 	TFRs                    []av.TFR
 	LiveWeather             bool
 	GribFile                string
+	TemperatureC            float32
 	Wind                    av.Wind
 	STARSFacilityAdaptation STARSFacilityAdaptation
 	IsLocal                 bool
@@ -265,6 +266,25 @@ func NewSim(config NewSimConfiguration, manifest *VideoMapManifest, lg *log.Logg
 	s.setInitialSpawnTimes(time.Now()) // FIXME? will be clobbered in prespawn
 
 	return s
+}
+
+func (s *Sim) scalePerformance(perf av.AircraftPerformance) av.AircraftPerformance {
+	sigma := 288.15 / (273.15 + s.State.TemperatureC)
+	var exp float32
+	switch perf.Engine.AircraftType {
+	case "P":
+		exp = 1.0
+	case "T":
+		exp = 0.7
+	case "J":
+		exp = 0.5
+	default:
+		exp = 0.7
+	}
+	mult := math.Pow(float32(sigma), exp)
+	perf.Rate.Climb *= mult
+	perf.Rate.Descent *= mult
+	return perf
 }
 
 func (s *Sim) Activate(lg *log.Logger) {

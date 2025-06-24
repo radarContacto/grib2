@@ -72,6 +72,7 @@ type scenario struct {
 	Range        float32       `json:"range"`
 	DefaultMaps  []string      `json:"default_maps"`
 	VFRRateScale *float32      `json:"vfr_rate_scale"`
+	TemperatureC *float32      `json:"temperature_c"`
 
 	GribFile string `json:"grib_file,omitempty"`
 }
@@ -565,6 +566,10 @@ func (s *scenario) PostDeserialize(sg *scenarioGroup, e *util.ErrorLogger, manif
 	if s.VFRRateScale == nil { // unspecified -> default to 1
 		one := float32(1)
 		s.VFRRateScale = &one
+	}
+	if s.TemperatureC == nil {
+		std := float32(15)
+		s.TemperatureC = &std
 	}
 }
 
@@ -1351,6 +1356,7 @@ func initializeSimConfigurations(sg *scenarioGroup,
 			SplitConfigurations: scenario.SplitConfigurations,
 			LaunchConfig:        lc,
 			Wind:                scenario.Wind,
+			TemperatureC:        *scenario.TemperatureC,
 			DepartureRunways:    scenario.DepartureRunways,
 			ArrivalRunways:      scenario.ArrivalRunways,
 			PrimaryAirport:      sg.PrimaryAirport,

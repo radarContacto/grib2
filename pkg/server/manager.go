@@ -71,6 +71,7 @@ type SimScenarioConfiguration struct {
 	PrimaryAirport      string
 
 	Wind         av.Wind
+	TemperatureC float32
 	LaunchConfig sim.LaunchConfig
 
 	DepartureRunways []sim.DepartureRunway
@@ -105,7 +106,8 @@ type NewSimConfiguration struct {
 
 	LiveWeather bool
 
-	GribFile string
+	GribFile     string
+	TemperatureC float32
 
 	AllowInstructorRPO  bool
 	Instructor          bool
@@ -266,6 +268,7 @@ func (sm *SimManager) makeSimConfiguration(config *NewSimConfiguration, lg *log.
 		MagneticVariation:       sg.MagneticVariation,
 		NmPerLongitude:          sg.NmPerLongitude,
 		Wind:                    sc.Wind,
+		TemperatureC:            *sc.TemperatureC,
 		Airports:                sg.Airports,
 		Fixes:                   sg.Fixes,
 		PrimaryAirport:          sg.PrimaryAirport,

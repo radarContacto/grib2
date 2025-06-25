@@ -57718,7 +57718,8 @@
         "direction": 90,
         "speed": 10
       },
-            "grib_file": "weather/wind_test.json"
+            "grib_file": "weather/wind_test.json",
+            "temperature_c": 45
     },
     "BOS 4L/9+4R": {
       "arrival_runways": [

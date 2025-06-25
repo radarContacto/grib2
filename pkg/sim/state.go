@@ -74,9 +74,10 @@ type State struct {
 	NmPerLongitude    float32
 	PrimaryAirport    string
 
-	METAR    map[string]*av.METAR
-	Wind     av.Wind
-	GribWind *av.GribWindModel
+	METAR        map[string]*av.METAR
+	Wind         av.Wind
+	TemperatureC float32
+	GribWind     *av.GribWindModel
 
 	TotalIFR, TotalVFR int
 
@@ -137,9 +138,10 @@ func newState(config NewSimConfiguration, manifest *VideoMapManifest, lg *log.Lo
 		NmPerLongitude:    config.NmPerLongitude,
 		PrimaryAirport:    config.PrimaryAirport,
 
-		METAR:    make(map[string]*av.METAR),
-		Wind:     config.Wind,
-		GribWind: nil,
+		METAR:        make(map[string]*av.METAR),
+		Wind:         config.Wind,
+		TemperatureC: config.TemperatureC,
+		GribWind:     nil,
 
 		SimRate:        1,
 		SimDescription: config.Description,

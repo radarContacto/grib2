@@ -1709,7 +1709,8 @@
             "wind": {
                 "direction": 250,
                 "speed": 12
-            }
+            },
+            "temperature_c": 48
         },
         "P50 - East": {
             "arrival_runways": [

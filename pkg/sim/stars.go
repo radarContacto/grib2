@@ -299,6 +299,7 @@ type STARSFacilityAdaptation struct {
 	SignificantPoints   map[string]SignificantPoint       `json:"significant_points"`
 	Altimeters          []string                          `json:"altimeters"`
 
+	TCPConfiguration TCPConfiguration `json:"tcp_configuration"`
 	// Airpsace filters
 	Filters struct {
 		ArrivalAcquisition   FilterRegions `json:"arrival_acquisition"`
@@ -358,8 +359,6 @@ type STARSFacilityAdaptation struct {
 	CoordinationLists []CoordinationList   `json:"coordination_lists"`
 	RestrictionAreas  []av.RestrictionArea `json:"restriction_areas"`
 	UseLegacyFont     bool                 `json:"use_legacy_font"`
-
-	TCPConfiguration TCPConfiguration `json:"tcp_configuration"`
 }
 
 type FilterRegion struct {

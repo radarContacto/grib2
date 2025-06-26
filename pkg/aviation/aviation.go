@@ -56,6 +56,14 @@ type ReportingPoint struct {
 	Location math.Point2LL
 }
 
+// InboundHandoff describes the first external sector for a departure.
+// If multiple ranges are specified, the one encompassing the aircraft's
+// altitude will be used when determining the initial handoff controller.
+type InboundHandoff struct {
+	ReceivingController string `json:"receiving_controller"`
+	AltitudeRange       [2]int `json:"altitude_range"`
+}
+
 type InboundFlow struct {
 	Arrivals    []Arrival    `json:"arrivals"`
 	Overflights []Overflight `json:"overflights"`
@@ -65,6 +73,8 @@ type Arrival struct {
 	Waypoints       WaypointArray                       `json:"waypoints"`
 	RunwayWaypoints map[string]map[string]WaypointArray `json:"runway_waypoints"` // Airport -> runway -> waypoints
 	SpawnWaypoint   string                              `json:"spawn"`            // if "waypoints" aren't specified
+	EntryFix        string                              `json:"entry_fix"`
+	ExitFix         string                              `json:"exit_fix"`
 	CruiseAltitude  float32                             `json:"cruise_altitude"`
 	Route           string                              `json:"route"`
 	STAR            string                              `json:"star"`

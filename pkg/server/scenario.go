@@ -49,6 +49,77 @@ type scenarioGroup struct {
 	STARSFacilityAdaptation sim.STARSFacilityAdaptation `json:"stars_config"`
 }
 
+// fix par compatibility structures
+type soloPosition struct {
+	ConsolidatedTCPs []string `json:"consolidated_tcps"`
+}
+
+type soloConfiguration struct {
+	ConfigurationID string                   `json:"configuration_id"`
+	SoloPosition    map[string]*soloPosition `json:"solo_position"`
+}
+
+type multiPosition struct {
+	ConsolidatedPositions []string `json:"consolidated_positions"`
+}
+
+type multiConfiguration struct {
+	ConfigurationID string                    `json:"configuration_id"`
+	Positions       map[string]*multiPosition `json:"positions"`
+}
+
+type virtualPosition struct {
+	ConsolidatedPositions []string `json:"consolidated_positions"`
+}
+
+// fixpair fills legacy scenario fields from codex-specific ones.
+func (s *scenario) convertCodex() {
+	if s.SoloConfiguration != nil {
+		if s.SoloController == "" {
+			for ctrl := range s.SoloConfiguration.SoloPosition {
+				s.SoloController = ctrl
+				break
+			}
+		}
+		s.SoloConfiguration = nil
+	}
+
+	if s.MultiConfiguration != nil && len(s.SplitConfigurations) == 0 {
+		configID := s.MultiConfiguration.ConfigurationID
+		if configID == "" {
+			configID = "default"
+		}
+		conf := make(av.SplitConfiguration)
+		for ctrl, pos := range s.MultiConfiguration.Positions {
+			mc := &av.MultiUserController{}
+			if len(pos.ConsolidatedPositions) > 0 {
+				mc.BackupController = pos.ConsolidatedPositions[0]
+			}
+			conf[ctrl] = mc
+		}
+		if len(conf) > 0 {
+			if sc, ok := conf[s.SoloController]; ok {
+				sc.Primary = true
+			} else {
+				for _, sc := range conf {
+					sc.Primary = true
+					break
+				}
+			}
+		}
+		s.SplitConfigurations = av.SplitConfigurationSet{configID: conf}
+		if s.DefaultSplit == "" {
+			s.DefaultSplit = configID
+		}
+		s.MultiConfiguration = nil
+	}
+
+	if len(s.VirtualPositions) > 0 && len(s.VirtualControllers) == 0 {
+		s.VirtualControllers = util.SortedMapKeys(s.VirtualPositions)
+		s.VirtualPositions = nil
+	}
+}
+
 type scenario struct {
 	SoloController      string                   `json:"solo_controller"`
 	SplitConfigurations av.SplitConfigurationSet `json:"multi_controllers"`
@@ -72,6 +143,11 @@ type scenario struct {
 	Range        float32       `json:"range"`
 	DefaultMaps  []string      `json:"default_maps"`
 	VFRRateScale *float32      `json:"vfr_rate_scale"`
+
+	// fix pair fields for backwards compatibility
+	SoloConfiguration  *soloConfiguration          `json:"solo__configuration"`
+	MultiConfiguration *multiConfiguration         `json:"multi_configuration"`
+	VirtualPositions   map[string]*virtualPosition `json:"virtual_positions"`
 }
 
 func (s *scenario) PostDeserialize(sg *scenarioGroup, e *util.ErrorLogger, manifest *sim.VideoMapManifest) {
@@ -864,6 +940,7 @@ func (sg *scenarioGroup) rewriteControllers(e *util.ErrorLogger) {
 	}
 
 	for _, s := range sg.Scenarios {
+		s.convertCodex()
 		rewrite(&s.SoloController)
 
 		if len(s.Airspace) > 0 {
@@ -915,6 +992,9 @@ func (sg *scenarioGroup) rewriteControllers(e *util.ErrorLogger) {
 		}
 		for _, dep := range ap.Departures {
 			rewriteWaypoints(dep.RouteWaypoints)
+			for i := range dep.FirstExternalSector {
+				rewrite(&dep.FirstExternalSector[i].ReceivingController)
+			}
 		}
 	}
 
@@ -948,6 +1028,12 @@ func PostDeserializeSTARSFacilityAdaptation(s *sim.STARSFacilityAdaptation, e *u
 	defer e.CheckDepth(e.CurrentDepth())
 
 	e.Push("stars_config")
+
+	for tcp := range s.TCPConfiguration.TCPs {
+		if _, ok := sg.ControlPositions[tcp]; !ok {
+			e.ErrorString("tcp %q in \"tcp_configuration\" not defined in \"control_positions\"", tcp)
+		}
+	}
 
 	// Video maps
 	for m := range s.VideoMapLabels {

@@ -453,6 +453,24 @@ func (ap *Airport) PostDeserialize(icao string, loc Locator, nmPerLongitude floa
 			}
 		}
 
+		ap.Departures[i].ExitFix = dep.ExitFix
+		if ap.Departures[i].ExitFix == "" {
+			ap.Departures[i].ExitFix = depExit
+		}
+
+		for j := range dep.FirstExternalSector {
+			fh := &dep.FirstExternalSector[j]
+			e.Push(fmt.Sprintf("first_external_sector[%d]", j))
+			if fh.AltitudeRange[0] > fh.AltitudeRange[1] {
+				e.ErrorString("lower end of \"altitude_range\" %d above upper end %d",
+					fh.AltitudeRange[0], fh.AltitudeRange[1])
+			}
+			if _, ok := controlPositions[fh.ReceivingController]; !ok {
+				e.ErrorString("%s: controller unknown", fh.ReceivingController)
+			}
+			e.Pop()
+		}
+
 		if !checkScratchpad(dep.Scratchpad) {
 			e.ErrorString("%s: invalid scratchpad", dep.Scratchpad)
 		}
@@ -718,8 +736,15 @@ type ExitRoute struct {
 }
 
 type Departure struct {
-	Exit string `json:"exit"`
+	// ExitFix is the fix identifier used for fix-pair matching. If empty,
+	// the Exit field (sans suffix) is used.
+	ExitFix string `json:"exit_fix"`
 
+	// FirstExternalSector defines which external controller will first
+	// receive the aircraft. It may contain multiple altitude ranges.
+	FirstExternalSector []InboundHandoff `json:"first_external_sector"`
+
+	Exit                string                  `json:"exit"`
 	Destination         string                  `json:"destination"`
 	Altitudes           util.SingleOrArray[int] `json:"altitude,omitempty"`
 	Route               string                  `json:"route"`

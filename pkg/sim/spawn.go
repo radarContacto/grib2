@@ -1117,15 +1117,17 @@ func (s *Sim) createArrivalNoLock(group string, arrivalAirport string) (*Aircraf
 	}
 
 	if starsFp.TrackingController == "" {
-		starsFp.TrackingController = s.STARSComputer.FacilityAdaptation.TCPForFixPair(s.State.TRACON, starsFp.TypeOfFlight, starsFp.EntryFix, starsFp.ExitFix)
+		tcp := s.State.STARSFacilityAdaptation.TCPForFixPair(av.FlightTypeOverflight, starsFp.EntryFix, starsFp.ExitFix)
+		if tcp != "" {
+			starsFp.TrackingController = tcp
+		}
 	}
 
 	if starsFp.TrackingController == "" {
-		starsFp.TrackingController = s.STARSComputer.FacilityAdaptation.TCPForFixPair(s.State.TRACON, starsFp.TypeOfFlight, starsFp.EntryFix, starsFp.ExitFix)
-	}
-
-	if starsFp.TrackingController == "" {
-		starsFp.TrackingController = s.STARSComputer.FacilityAdaptation.TCPForFixPair(s.State.TRACON, starsFp.TypeOfFlight, starsFp.EntryFix, starsFp.ExitFix)
+		tcp := s.State.STARSFacilityAdaptation.TCPForFixPair(av.FlightTypeArrival, starsFp.EntryFix, starsFp.ExitFix)
+		if tcp != "" {
+			starsFp.TrackingController = tcp
+		}
 	}
 
 	// VFRs don't go around since they aren't talking to us.
@@ -1179,6 +1181,23 @@ func (s *Sim) getInboundHandoffController(initialTCP string, group string, wps a
 		return hoTCP
 	}
 	return "" // never goes to a human
+}
+
+func departureExitFix(dep *av.Departure) string {
+	if dep.ExitFix != "" {
+		return dep.ExitFix
+	}
+	shortExit, _, _ := strings.Cut(dep.Exit, ".")
+	return shortExit
+}
+
+func selectDepartureHandoff(dep *av.Departure, alt int, def string) string {
+	for _, h := range dep.FirstExternalSector {
+		if alt >= h.AltitudeRange[0] && alt <= h.AltitudeRange[1] {
+			return h.ReceivingController
+		}
+	}
+	return def
 }
 
 func (s *Sim) sampleAircraft(al av.AirlineSpecifier, lg *log.Logger) (*Aircraft, string) {
@@ -1270,10 +1289,15 @@ func (s *Sim) createIFRDepartureNoLock(departureAirport, runway, category string
 	}
 
 	shortExit, _, _ := strings.Cut(dep.Exit, ".") // chop any excess
+	exitFix := dep.ExitFix
+	if exitFix == "" {
+		exitFix = shortExit
+	}
+
 	starsFp := STARSFlightPlan{
 		ACID:             ACID(ac.ADSBCallsign),
 		EntryFix:         util.Select(len(ac.FlightPlan.DepartureAirport) == 4, ac.FlightPlan.DepartureAirport[1:], ac.FlightPlan.DepartureAirport),
-		ExitFix:          shortExit,
+		ExitFix:          departureExitFix(dep),
 		CoordinationTime: getAircraftTime(s.State.SimTime, s.Rand),
 		PlanType:         RemoteEnroute,
 
@@ -1289,12 +1313,22 @@ func (s *Sim) createIFRDepartureNoLock(departureAirport, runway, category string
 		AircraftType:  ac.FlightPlan.AircraftType,
 		CWTCategory:   av.DB.AircraftPerformance[ac.FlightPlan.AircraftType].Category.CWT,
 	}
+	handoffCtrl := exitRoute.HandoffController
+	if len(dep.FirstExternalSector) > 0 {
+		alt := int(ac.FlightPlan.Altitude)
+		for _, fh := range dep.FirstExternalSector {
+			if alt >= fh.AltitudeRange[0] && alt <= fh.AltitudeRange[1] {
+				handoffCtrl = fh.ReceivingController
+				break
+			}
+		}
+	}
 
 	if ap.DepartureController != "" && ap.DepartureController != s.State.PrimaryController {
 		// starting out with a virtual controller
 		starsFp.TrackingController = ap.DepartureController
 		starsFp.ControllingController = ap.DepartureController
-		starsFp.InboundHandoffController = exitRoute.HandoffController
+		starsFp.InboundHandoffController = handoffCtrl
 	} else {
 		// human controller will be first
 		ctrl := s.State.PrimaryController
@@ -1314,7 +1348,16 @@ func (s *Sim) createIFRDepartureNoLock(departureAirport, runway, category string
 			ac.Nav.FlightState.DepartureAirportElevation + 500 + float32(s.Rand.Intn(500))
 		ac.DepartureContactAltitude = min(ac.DepartureContactAltitude, float32(ac.FlightPlan.Altitude))
 		starsFp.TrackingController = ctrl
-		starsFp.InboundHandoffController = ctrl
+		starsFp.InboundHandoffController = handoffCtrl
+	}
+
+	starsFp.InboundHandoffController = selectDepartureHandoff(dep, int(ac.FlightPlan.Altitude), starsFp.InboundHandoffController)
+
+	if starsFp.TrackingController == "" {
+		tcp := s.State.STARSFacilityAdaptation.TCPForFixPair(av.FlightTypeDeparture, starsFp.EntryFix, starsFp.ExitFix)
+		if tcp != "" {
+			starsFp.TrackingController = tcp
+		}
 	}
 
 	ac.HoldForRelease = ap.HoldForRelease && ac.FlightPlan.Rules == av.FlightRulesIFR // VFRs aren't held
@@ -1359,8 +1402,8 @@ func (s *Sim) createOverflightNoLock(group string) (*Aircraft, error) {
 
 	starsFp := STARSFlightPlan{
 		ACID:             ACID(ac.ADSBCallsign),
-		EntryFix:         "", // TODO
-		ExitFix:          "", // TODO
+		EntryFix:         of.EntryFix,
+		ExitFix:          of.ExitFix,
 		CoordinationTime: getAircraftTime(s.State.SimTime, s.Rand),
 		PlanType:         RemoteEnroute,
 

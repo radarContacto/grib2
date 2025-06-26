@@ -1507,6 +1507,8 @@ func (a Airway) WaypointsBetween(wp0, wp1 string) ([]Waypoint, bool) {
 
 type Overflight struct {
 	Waypoints           WaypointArray           `json:"waypoints"`
+	EntryFix            string                  `json:"entry_fix"`
+	ExitFix             string                  `json:"exit_fix"`
 	InitialAltitudes    util.SingleOrArray[int] `json:"initial_altitude"`
 	CruiseAltitude      float32                 `json:"cruise_altitude"`
 	AssignedAltitude    float32                 `json:"assigned_altitude"`

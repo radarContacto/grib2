@@ -1,0 +1,57 @@
+JSON -> Behavior Legend
+
+1. airports.{ICAO}.departures[].exit_fix
+   - STARS departure exit fix to match on for fix-pairs lookup
+
+2. airports.{ICAO}.departures[].first_external_sector
+   - New airspace-awareness handoff targets (receiving_controller + altitude_range)
+
+3. inbound_flows.{FLOW_ID}.arrivals
+   - Defines arrivals; used to set flight_type = "arrival" for fix-pairs
+
+4. inbound_flows.{FLOW_ID}.arrivals[].entry_fix / exit_fix
+   - Entry/exit fixes for matching on fix-pairs
+
+5. inbound_flows.{FLOW_ID}.overflights
+   - Defines overflights; sets flight_type = "overflight" for fix-pairs
+
+6. control_positions.{FACILITY}[].sector_routing_id, frequency, radio_name
+   - Defines each real-world TCP’s ID, comm frequency, and label
+
+7. facilities
+   - Facility metadata:
+     * facility_type (T/L/A)
+     * names, adjacent_tracon_id, terminal_sectors for TCP mapping
+
+10. scenarios.{NAME}.solo__configuration
+    - Single-player start:
+      * configuration_id
+      * solo_position map of primary TCP -> its consolidated_tcps (similar to Vice's current "backup")
+
+11. scenarios.{NAME}.multi_configuration
+    - Multiplayer start:
+      * configuration_id
+      * positions map of TCP -> its consolidated_positions (similar to Vice's current "backup")
+
+12. scenarios.{NAME}.virtual_positions
+    - Replaces legacy controllers: for each TCP ID, list its consolidated_positions
+
+13. scenarios.{NAME}.arrival_runways & departure_runways
+    - Defines runway lists per airport for scenario setup
+
+14. scenarios.{NAME}.inbound_rates, default_maps, wind
+    - Misc scenario defaults: arrival rates, map files, wind vector
+
+15. stars_config.significant_points
+    - List of valid fix-pair entry/exit waypoints allowed in fix_pairs
+
+16. stars_config.tcp_configuration.tcps.{ID}
+    - TCP parameters for facility_type = "L":
+      * tcp_name, facility_id, terminal_sector
+      * excluded_exit_fixes for arrival scratchpad logic
+
+17. stars_config.tcp_configuration.fix_pair_configuration.{FAC}
+    - Fix-pairs config (only for local STARS facilities):
+      * sector_configurations[]: list of configuration_id, configuration_name, default_configuration
+      * fix_pairs[]: each flight_type, entry_fix, exit_fix, terminal_sector
+      * fix_pair_tcp_assignments[]: maps configuration + flight_type + entry_fix + exit_fix -> tcp

@@ -268,20 +268,17 @@ func NewSim(config NewSimConfiguration, manifest *VideoMapManifest, lg *log.Logg
 	return s
 }
 
-func (s *Sim) scalePerformance(perf av.AircraftPerformance) av.AircraftPerformance {
-	sigma := 288.15 / (273.15 + s.State.TemperatureC)
-	var exp float32
-	switch perf.Engine.AircraftType {
-	case "P":
-		exp = 1.0
-	case "T":
-		exp = 0.7
-	case "J":
-		exp = 0.5
-	default:
-		exp = 0.7
-	}
-	mult := math.Pow(float32(sigma), exp)
+func (s *Sim) scalePerformance(perf av.AircraftPerformance, altitudeMSL float64) av.AircraftPerformance {
+	T0 := 288.15  // Standard temperature (K)
+	P0 := 1013.25 // Standard pressure (hPa)
+
+	T := 273.15 + float64(s.State.TemperatureC)
+	h := altitudeMSL
+	P := P0 * math.Pow(1-0.0000225577*h, 5.25588)
+
+	sigma := (P / T) / (P0 / T0)
+
+	mult := float32(sigma)
 	perf.Rate.Climb *= mult
 	perf.Rate.Descent *= mult
 	return perf

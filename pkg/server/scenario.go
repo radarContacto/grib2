@@ -76,9 +76,9 @@ type virtualPosition struct {
 func (s *scenario) convertCodex() {
 	if s.SoloConfiguration != nil {
 		if s.SoloController == "" {
-			for ctrl := range s.SoloConfiguration.SoloPosition {
-				s.SoloController = ctrl
-				break
+			controllers := util.SortedMapKeys(s.SoloConfiguration.SoloPosition)
+			if len(controllers) > 0 {
+				s.SoloController = controllers[0]
 			}
 		}
 		s.SoloConfiguration = nil

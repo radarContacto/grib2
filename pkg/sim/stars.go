@@ -358,6 +358,8 @@ type STARSFacilityAdaptation struct {
 	CoordinationLists []CoordinationList   `json:"coordination_lists"`
 	RestrictionAreas  []av.RestrictionArea `json:"restriction_areas"`
 	UseLegacyFont     bool                 `json:"use_legacy_font"`
+
+	TCPConfiguration TCPConfiguration `json:"tcp_configuration"`
 }
 
 type FilterRegion struct {
@@ -366,6 +368,101 @@ type FilterRegion struct {
 }
 
 type FilterRegions []FilterRegion
+
+type TCPConfiguration struct {
+	TCPs                 map[string]TCPSpec                       `json:"tcps"`
+	FixPairConfiguration map[string]*FixPairFacilityConfiguration `json:"fix_pair_configuration"`
+}
+
+type TCPSpec struct {
+	TCPName           string   `json:"tcp_name"`
+	FacilityID        string   `json:"facility_id"`
+	TerminalSector    string   `json:"terminal_sector"`
+	ExcludedExitFixes []string `json:"excluded_exit_fixes"`
+}
+
+type FixPairFacilityConfiguration struct {
+	SectorConfigurations  []SectorConfiguration  `json:"sector_configurations"`
+	FixPairs              []FixPair              `json:"fix_pairs"`
+	FixPairTCPAssignments []FixPairTCPAssignment `json:"fix_pair_tcp_assignments"`
+}
+
+type SectorConfiguration struct {
+	ConfigurationID      string `json:"configuration_id"`
+	ConfigurationName    string `json:"configuration_name"`
+	DefaultConfiguration bool   `json:"default_configuration"`
+}
+
+type FixPair struct {
+	TerminalSector string `json:"terminal_sector"`
+	FlightType     string `json:"flight_type"`
+	EntryFix       string `json:"entry_fix"`
+	ExitFix        string `json:"exit_fix"`
+}
+
+type FixPairTCPAssignment struct {
+	Configuration []string `json:"configuration"`
+	FlightType    string   `json:"flight_type"`
+	EntryFix      string   `json:"entry_fix"`
+	ExitFix       string   `json:"exit_fix"`
+	TCP           string   `json:"tcp"`
+}
+
+func flightTypeFromString(s string) av.TypeOfFlight {
+	switch strings.ToLower(s) {
+	case "departure":
+		return av.FlightTypeDeparture
+	case "arrival":
+		return av.FlightTypeArrival
+	case "overflight":
+		return av.FlightTypeOverflight
+	default:
+		return av.FlightTypeUnknown
+	}
+}
+
+func flightTypeToString(t av.TypeOfFlight) string {
+	switch t {
+	case av.FlightTypeDeparture:
+		return "departure"
+	case av.FlightTypeArrival:
+		return "arrival"
+	case av.FlightTypeOverflight:
+		return "overflight"
+	default:
+		return ""
+	}
+}
+
+func (fa *STARSFacilityAdaptation) TCPForFixPair(tracon string, ft av.TypeOfFlight, entry, exit string) string {
+	cfg, ok := fa.TCPConfiguration.FixPairConfiguration[tracon]
+	if !ok {
+		return ""
+	}
+
+	var defaults []string
+	for _, sc := range cfg.SectorConfigurations {
+		if sc.DefaultConfiguration {
+			defaults = append(defaults, sc.ConfigurationID)
+		}
+	}
+
+	ftStr := flightTypeToString(ft)
+	for _, a := range cfg.FixPairTCPAssignments {
+		if strings.EqualFold(a.EntryFix, entry) && strings.EqualFold(a.ExitFix, exit) &&
+			strings.EqualFold(a.FlightType, ftStr) {
+			if len(a.Configuration) == 0 {
+				return a.TCP
+			}
+			for _, c := range a.Configuration {
+				if slices.Contains(defaults, c) {
+					return a.TCP
+				}
+			}
+		}
+	}
+	return ""
+}
 
 type STARSControllerConfig struct {
 	VideoMapNames                   []string      `json:"video_maps"`

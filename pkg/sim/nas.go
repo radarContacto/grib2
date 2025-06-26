@@ -20,10 +20,11 @@ type ERAMComputer struct {
 }
 
 type STARSComputer struct {
-	Identifier       string
-	FlightPlans      []*STARSFlightPlan
-	HoldForRelease   []*Aircraft
-	AvailableIndices []int
+	Identifier         string
+	FlightPlans        []*STARSFlightPlan
+	HoldForRelease     []*Aircraft
+	AvailableIndices   []int
+	FacilityAdaptation *STARSFacilityAdaptation
 }
 
 func makeERAMComputer(fac string, loc *av.LocalSquawkCodePool) *ERAMComputer {
@@ -47,10 +48,11 @@ func (ec *ERAMComputer) ReturnSquawk(code av.Squawk) error {
 func (ec *ERAMComputer) Update(s *Sim) {
 }
 
-func makeSTARSComputer(id string) *STARSComputer {
+func makeSTARSComputer(id string, adapt *STARSFacilityAdaptation) *STARSComputer {
 	sc := &STARSComputer{
-		Identifier:       id,
-		AvailableIndices: make([]int, 99),
+		Identifier:         id,
+		AvailableIndices:   make([]int, 99),
+		FacilityAdaptation: adapt,
 	}
 
 	for i := range 99 {
@@ -228,6 +230,13 @@ func (sc *STARSComputer) takeFlightPlanBySquawk(sq av.Squawk) *STARSFlightPlan {
 func (sc *STARSComputer) CreateFlightPlan(fp STARSFlightPlan) (STARSFlightPlan, error) {
 	if fp2 := sc.lookupFlightPlanByACID(fp.ACID); fp2 != nil {
 		return fp, ErrDuplicateACID
+	}
+
+	if fp.TrackingController == "" && sc.FacilityAdaptation != nil {
+		tcp := sc.FacilityAdaptation.TCPForFixPair(sc.Identifier, fp.TypeOfFlight, fp.EntryFix, fp.ExitFix)
+		if tcp != "" {
+			fp.TrackingController = tcp
+		}
 	}
 
 	var err error

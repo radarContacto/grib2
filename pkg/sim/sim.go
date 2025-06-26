@@ -198,7 +198,7 @@ func NewSim(config NewSimConfiguration, manifest *VideoMapManifest, lg *log.Logg
 
 		SignOnPositions: config.SignOnPositions,
 
-		STARSComputer: makeSTARSComputer(config.TRACON),
+		STARSComputer: makeSTARSComputer(config.TRACON, &config.STARSFacilityAdaptation),
 
 		LocalCodePool: av.MakeLocalSquawkCodePool(config.STARSFacilityAdaptation.SSRCodes),
 

@@ -1116,6 +1116,18 @@ func (s *Sim) createArrivalNoLock(group string, arrivalAirport string) (*Aircraf
 		CWTCategory:   av.DB.AircraftPerformance[ac.FlightPlan.AircraftType].Category.CWT,
 	}
 
+	if starsFp.TrackingController == "" {
+		starsFp.TrackingController = s.STARSComputer.FacilityAdaptation.TCPForFixPair(s.State.TRACON, starsFp.TypeOfFlight, starsFp.EntryFix, starsFp.ExitFix)
+	}
+
+	if starsFp.TrackingController == "" {
+		starsFp.TrackingController = s.STARSComputer.FacilityAdaptation.TCPForFixPair(s.State.TRACON, starsFp.TypeOfFlight, starsFp.EntryFix, starsFp.ExitFix)
+	}
+
+	if starsFp.TrackingController == "" {
+		starsFp.TrackingController = s.STARSComputer.FacilityAdaptation.TCPForFixPair(s.State.TRACON, starsFp.TypeOfFlight, starsFp.EntryFix, starsFp.ExitFix)
+	}
+
 	// VFRs don't go around since they aren't talking to us.
 	goAround := s.Rand.Float32() < s.State.LaunchConfig.GoAroundRate && ac.FlightPlan.Rules == av.FlightRulesIFR
 	// If it's only controlled by virtual controllers, then don't let it go

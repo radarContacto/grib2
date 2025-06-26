@@ -1108,6 +1108,43 @@ func PostDeserializeSTARSFacilityAdaptation(s *sim.STARSFacilityAdaptation, e *u
 			e.ErrorString("%q is a standard SPC already", spc)
 		}
 	}
+	// TCP configuration
+	for tcp, spec := range s.TCPConfiguration.TCPs {
+		if len(tcp) != 2 {
+			e.ErrorString("tcp id %q must be two characters", tcp)
+		}
+		_ = spec // nothing to validate yet
+	}
+	for fac, conf := range s.TCPConfiguration.FixPairConfiguration {
+		var defaults int
+		for i, scfg := range conf.SectorConfigurations {
+			if scfg.DefaultConfiguration {
+				defaults++
+			}
+			conf.SectorConfigurations[i] = scfg
+		}
+		if defaults == 0 && len(conf.SectorConfigurations) > 0 {
+			conf.SectorConfigurations[0].DefaultConfiguration = true
+		}
+		if defaults > 1 {
+			e.ErrorString("multiple default sector configurations for %s", fac)
+		}
+		for i, fp := range conf.FixPairs {
+			ft := strings.ToLower(fp.FlightType)
+			if ft != "arrival" && ft != "departure" && ft != "overflight" {
+				e.ErrorString("invalid flight_type %q", fp.FlightType)
+			}
+			conf.FixPairs[i] = fp
+		}
+		for i, asn := range conf.FixPairTCPAssignments {
+			ft := strings.ToLower(asn.FlightType)
+			if ft != "arrival" && ft != "departure" && ft != "overflight" {
+				e.ErrorString("invalid flight_type %q", asn.FlightType)
+			}
+			conf.FixPairTCPAssignments[i] = asn
+		}
+		s.TCPConfiguration.FixPairConfiguration[fac] = conf
+	}
 
 	// Significant points
 	e.Push("\"significant_points\"")

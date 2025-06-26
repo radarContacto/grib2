@@ -1,0 +1,810 @@
+    {
+    "tracon": "PVD",
+    "airports": {
+        "KPVD": {
+            "hold_for_release": true,
+            "tower_list": 1,
+            "approaches": {
+                "I23": {
+                    "runway":"23",
+                    "full_name": "ILS Runway 23",
+                    "type":"ILS",
+                    "waypoints": ["PVD_ILS23_10/iaf CUSKA/faf/a1900"]
+                },
+                "I5": {"cifp_id": "I5"},
+                "I34":{ "cifp_id": "I34" }
+            },
+            "departure_routes": {
+                "23": {
+                    "PUT": {
+                        "cleared_altitude": 4000,
+                        "waypoints": "_PVD_23/h280"
+                    },
+                    "JUMPR": {
+                        "cleared_altitude": 4000,
+                        "waypoints": "_PVD_23/h160"
+                    }
+                },
+                "5": {
+                    "PUT": {
+                        "cleared_altitude": 4000,
+                        "waypoints": "_PVD_05/h360"
+                    },
+                    "JUMPR": {
+                        "cleared_altitude": 4000,
+                        "waypoints": "_PVD_05/h080"
+                    }
+                }
+            },
+            "departures": [
+                {
+                    "exit_fix":"PUT", 
+                    "first_external_sector": [ 
+                        {
+                            "receiving_controller":"ZCB_34",
+                            "altitude_range": [0,99000]
+                        }
+                    ],
+                    "airlines": [
+                        {
+                            "icao": "SWA",
+                            "fleet": "short"
+                        }
+                    ],
+                    "destination": "KBWI",
+                    "exit": "PUT",
+                    "route": "PUT NELIE Q75 MXE V378 NUGGY TRISH3"
+                },
+                {
+                    "exit_fix":"7TN",
+                    "first_external_sector": [
+                        {
+                            "receiving_controller":"ZCB_18",
+                            "altitude_range": [0,99000]
+                        }
+                    ],
+                    "airlines": [
+                        {
+                            "icao": "SWA",
+                            "fleet": "short"
+                        }
+                    ],
+                    "destination": "KBWI",
+                    "exit": "JUMPR",
+                    "route": "JUMPR RIFLE Q167 ZIZZI KNUKK ATR LAFLN MIIDY2"
+                }
+            ],
+            "exit_categories": {
+                "PUT": "Northwest",
+                "JUMPR": "South"
+            }
+        },
+        "KOQU": {
+            "hold_for_release": true,
+            "approaches": {
+                "I16": { "cifp_id": "I16" },
+                "R34": { "cifp_id": "R34" }
+            },
+            "departure_routes": {
+                "16": {
+                    "PUT": {
+                        "cleared_altitude": 2000,
+                        "waypoints": "_OQU_16/h280"
+                    },
+                    "JUMPR": {
+                        "cleared_altitude": 2000,
+                        "waypoints": "_OQU_16/h160"
+                    }
+                },
+                "34": {
+                    "PUT": {
+                        "cleared_altitude": 2000,
+                        "waypoints": "_OQU_34/h340"
+                    },
+                    "JUMPR": {
+                        "cleared_altitude": 2000,
+                        "waypoints": "_OQU_34/h180"
+                    }
+                }
+            },
+            "departures": [
+                {
+                    "exit_fix":"PUT",
+                    "first_external_sector": [
+                        {
+                            "receiving_controller":"ZCB_34",
+                            "altitude_range": [0,99000]
+                        }
+                    ],
+                    "airlines": [
+                        {
+                        "icao": "N",
+                        "fleet": "fastGA"
+                        }
+                    ],
+                    "destination": "KTEB",
+                    "exit": "PUT",
+                    "route": "PUT NELIE KTEB"
+                },
+                {
+                    "exit_fix":"7TN",
+                    "first_external_sector": [
+                        {
+                            "receiving_controller":"ZCB_34",
+                            "altitude_range": [0,99000]
+                        }
+                    ],
+                    "airlines": [
+                        {
+                            "icao": "N",
+                            "fleet": "fastGA"
+                        }
+                    ],
+                    "destination": "KBWI",
+                    "exit": "JUMPR",
+                    "route": "JUMPR RIFLE Q167 ZIZZI KNUKK ATR LAFLN MIIDY2"
+                }
+            ],
+            "exit_categories": {
+                "PUT": "Northwest",
+                "JUMPR": "South"
+            }
+        }
+    },
+    "inbound_flows": {
+		"GON":{
+			  "arrivals":[
+				  {
+                    "route":"GON MINNK",
+                    "entrty_fix":"ORW",
+                    "exit_fix": "PVD",
+                    "initial_controller": "ZCB_47",
+					"airlines": {
+					  "KPVD": [
+						{
+						  "airport": "KEWR",
+						  "icao": "GJS"
+						},
+						{
+						  "airport": "KLGA",
+						  "icao": "EDV"
+						}
+					  ]
+					},
+					"cruise_altitude": 36000,
+					"initial_altitude": 19000,
+					"initial_speed": 310,
+					"waypoints": "SEALL/ho GON/a11000 MINNK PVD"
+				  }
+			  ]
+		},
+		"WIPOR":{
+            "arrivals":[ 
+                {
+                    "star": "WIPOR3",
+                    "entry_fix": "ORW", 
+                    "exit_fix": "PVD",
+                    "initial_controller": "ZCB_47", 
+					"airlines": {
+					  "KPVD": [
+						{
+						  "airport": "KORD",
+						  "icao": "ENY"
+						},
+						{
+						  "airport": "KATL",
+						  "icao": "DAL"
+						},
+						{
+						  "airport": "KDCA",
+						  "icao": "SWA"
+						},
+						{
+						  "airport": "KBWI",
+						  "icao": "SWA"
+						},
+						{
+						  "airport": "KMCO",
+						  "icao": "SWA"
+						},
+						{
+						  "airport": "KFLL",
+						  "icao": "JBU"
+						},
+						{
+						  "airport": "KGSP",
+						  "icao": "MXY"
+						}
+					  ],
+					  "KOQU": [
+						{
+						  "airport": "KALB",
+						  "icao": "EJA"
+						},
+						{
+						  "airport": "KALB",
+						  "icao": "LXJ"
+
+						}
+					  ]
+					},
+					"initial_altitude": 21000,
+					"initial_speed": 310,
+					"runway_waypoints": {
+					  "KPVD": {
+						"23": "SAUGY WAWIK SEABE NOSUH/h047",
+						"5": "SAUGY LAFAY",
+						"34": "SAUGY LAFAY",
+						"16": "SAUGY WAWIK SEABE NOSUH/h047"
+					  }
+					},
+					"waypoints": "NELIE/ho WIPOR/a11000 ORW SAUGY"
+                },
+                {
+                    "star": "WIPOR3",
+                    "entry_fix": "ORW",
+                    "exit_fix": "OQU",
+                    "initial_controller": "ZCB_47",
+					"airlines": {
+                        "KOQU": [
+						{
+						  "airport": "KALB",
+						  "icao": "EJA"
+						},
+						{
+						  "airport": "KALB",
+						  "icao": "LXJ"
+
+						}
+					  ]
+					},
+					"initial_altitude": 21000,
+					"initial_speed": 310,
+					"waypoints": "NELIE/ho WIPOR/a11000 ORW SAUGY WAWIK SEABE NOSUH/h047"
+                }
+            ],
+            "overflights": [
+                {
+				  "description": "NELIE3.FOK",
+                  "entry_fix":"ORW",
+                  "exit_fix": "7WH",
+                  "initial_controller": "ZCB_47",
+				  "airlines": [{ "icao": "EJA", "departure_airport": "KOKC", "arrival_airport": "KFOK"}],
+				  "waypoints": "NELIE N041.51.56.670,W072.33.07.509/ho WIPOR/a11000/s280 ORW WANDI CCC",
+					"cruise_altitude": 35000,
+					"initial_altitude": 23000,
+					"initial_speed": 310
+                }
+            ]
+		  },
+		"JORDN": {
+            "arrivals": [
+                {
+                    "star":  "JORDN2",
+                    "initial_controller": "ZCB_32",
+                    "airlines": {
+                        "KPVD": [
+						{
+						  "airport": "KCHS",
+						  "icao": "MXY"
+						},
+						{
+						  "airport": "KATL",
+						  "icao": "DAL"
+						},
+						{
+						  "airport": "KEWR",
+						  "icao": "UCA"
+						},
+						{
+						  "airport": "KBWI",
+						  "icao": "SWA"
+						},
+						{
+						  "airport": "KMCO",
+						  "icao": "SWA"
+						},
+						{
+						  "airport": "KFLL",
+						  "icao": "JBU"
+						},
+						{
+						  "airport": "KCLT",
+						  "icao": "AAL"
+						}
+                    ]
+					},
+					"initial_altitude": 19000,
+					"initial_speed": 310,
+					"runway_waypoints": {
+					  "KPVD": {
+						"23": "MINNK/flyover/h015",
+						"5": "MINNK/flyover/h015",
+						"34": "MINNK/flyover/h015",
+						"16": "MINNK/flyover/h015"
+					  }
+					},
+					"waypoints": "N040.50.38.049,W072.32.49.052 N040.51.32.074,W072.30.08.816/ho HTO JORDN/a11000 MINNK"
+				  },
+                  {
+                    "star":  "JORDN2",
+                    "initial_controller": "ZCB_32",
+                    "entry_fix": "7WH",
+                    "exit_fix": "OQU",
+                    "airlines": {
+                        "KOQU": [
+						{
+						  "airport": "KALB",
+						  "icao": "EJA"
+						},
+						{
+						  "airport": "KALB",
+						  "icao": "LXJ"
+
+						}
+					  ]
+                    },
+					"initial_altitude": 19000,
+					"initial_speed": 310,
+					"waypoints": "N040.50.38.049,W072.32.49.052 N040.51.32.074,W072.30.08.816/ho HTO JORDN/a11000 MINNK KOQU"
+				  }
+				 ]
+                }
+	},
+    "control_positions": {
+        "BOA":[ 
+            {
+                "sector_routing_id": "1M", 
+                "frequency": 120600,
+                "radio_name": "Boston Approach"
+            }
+        ],
+        "NCA":[
+            {
+                "sector_routing_id": "1A",
+                "frequency": 127900,
+                "radio_name": "Providence Approach"
+            },
+            {
+                "sector_routing_id": "1D",
+                "frequency": 123675,
+                "radio_name": "Providence Departure"
+            },
+            {
+                "sector_routing_id": "1T",
+                "frequency": 120700,
+                "radio_name": "Providence Tower"
+            },
+            {
+                "sector_routing_id": "1Q",
+                "frequency": 126350,
+                "radio_name": "Quonset Tower"
+            }
+        ],
+        "ZCB":[
+            {
+                "sector_routing_id": "18",
+                "frequency": 128750,
+                "radio_name": "Boston Center"
+            },
+            {
+                "sector_routing_id": "32",
+                "frequency": 135800,
+                "radio_name": "Boston Center"
+            },
+            {
+                "sector_routing_id": "34",
+                "frequency": 124850,
+                "radio_name": "Boston Center"
+            },
+            {
+                "sector_routing_id": "47",
+                "frequency": 134700,
+                "radio_name": "Boston Center"
+            }
+        ]
+    },
+    "facilities": { 
+        "BOA": {
+            "facility_type": "T", 
+            "facility_name": "Boston Approach",
+            "adjacent_tracon_id": 2 
+        },
+        "NCA": {
+            "facility_type": "L",
+            "facility_name": "Providence Approach",
+            "terminal_sectors": { 
+                "A": "all sectors"
+        },
+        "NNN": {
+            "facility_type": "T",
+            "facility_name": "New York Approach",
+            "adjacent_tracon_id": 4
+        },
+        "ZCB": {
+            "facility_type": "A", 
+            "facility_name": "Boston Center",
+            "abbreviated_facility_id": "C" 
+        },
+        "ZCN": {
+            "facility_type": "A",
+            "facility_name": "New York Center",
+            "abbreviated_facility_id": "ZN"
+        }
+    },
+    "default_scenario": "PVD RY23",
+    "fixes": {
+        "_PVD_05": "N041.44.17.194,W071.24.53.783",
+        "_PVD_23": "N041.42.21.577,W071.26.28.046",
+        "_MINNK": "N041.22.22.845,W071.24.49.306",
+        "_OQU_16": "N041.35.12.574,W071.24.09.920",
+        "_OQU_34": "N041.36.51.451,W071.25.36.959",
+        "_EWB_05": "N041.41.21.358,W070.56.51.035",
+        "_EWB_23": "N041.39.58.452,W070.58.17.305",
+        "_EWB_32": "N041.41.12.843,W070.58.25.627",
+        "_EWB_14": "N041.39.59.290,W070.56.22.855",
+        "PVD_ILS23_10": "N041.54.03.479,W071.16.40.854"
+    },
+    "name": "KPVD",
+    "primary_airport": "KPVD",
+    "scenarios": {
+        "PVD RY23": {
+            "solo__configuration": { 
+                "configuration_id": "FG2", 
+                 "solo_position": { 
+                    "1D":{"consolidated_tcps":["1A"]} 
+                }
+            },
+            "multi_configuration": { 
+                "configuration_id": "FG2", 
+                "positions":{
+                    "1D":{"consolidated_positions":[]},
+                    "1A":{"consolidated_positions":[]} 
+
+                }
+            },
+            "virtual_positions": { 
+                "1T":{"consolidated_positions":[]},
+                "1E":{"consolidated_positions":[]},
+                "1Q":{"consolidated_positions":[]},
+                "ZCB_47":{"consolidated_positions":["ZCB_34"]},
+                "ZCB_18":{"consolidated_positions":[]},
+                "ZCB_32":{"consolidated_positions":[]},
+                "BOA_1M":{"consolidated_positions":[]}
+            },
+            "arrival_runways": [
+                {
+                "airport": "KPVD",
+                "runway": "23"
+                },
+                {
+                "airport": "KOQU",
+                "runway": "16"
+                }
+            ],
+            "departure_runways": [
+                {
+                "airport": "KPVD",
+                "rate": 0,
+                "runway": "23"
+                },
+
+                {
+                "airport": "KOQU",
+                "rate": 0,
+                "runway": "16"
+                },
+                {
+                "airport": "KEWB",
+                "rate": 0,
+                "runway": "32"
+                }
+            ],
+            "inbound_rates": {
+                "WIPOR":{
+                    "KPVD": 10,
+                    "KOQU": 0,
+                    "overflights": 0
+                },
+                "JORDN": {
+                    "KPVD": 15,
+                    "KOQU": 0		  
+                },
+                "GON":{
+                    "KPVD": 3
+                }
+            },
+            "default_maps": [ "RVMPVD011S" ],
+                "wind": {
+                "direction": 240,
+                "gust": 8,
+                "speed": 4
+            }
+        },
+        "PVD RY05": {
+            "solo__configuration": {
+                "configuration_id": "FG3",
+                 "solo_position": {
+                    "1D":{"consolidated_tcps":["1A"]}
+                }
+            },
+            "multi_configuration": {
+                "configuration_id": "FG3",
+                "positions":{
+                    "1D":{
+                        "consolidated_positions":[]},
+                    "1A":{"consolidated_positions":[]}
+
+                }
+            },
+            "virtual_positions": {
+                "1T":{"consolidated_positions":[]},
+                "1E":{"consolidated_positions":[]},
+                "1Q":{"consolidated_positions":[]},
+                "ZCB_47":{"consolidated_positions":["ZCB_34"]},
+                "ZCB_18":{"consolidated_positions":[]},
+                "ZCB_32":{"consolidated_positions":[]},
+                "BOA_1M":{"consolidated_positions":[]}
+            },
+            "arrival_runways": [
+                {
+                "airport": "KPVD",
+                "runway": "5"
+                },
+                {
+                "airport": "KPVD",
+                "runway": "34"
+                },
+                {
+                "airport": "KOQU",
+                "runway": "34"
+                }
+            ],
+            "inbound_rates": {
+                "WIPOR":{
+                    "KPVD": 10,
+                    "KOQU": 0,
+                    "overflights": 0
+                },
+                "JORDN": {
+                    "KPVD": 15,
+                    "KOQU": 0		  
+                },
+                "GON":{
+                    "KPVD": 3
+                }    
+            },
+            "default_maps": [ "RVMPVD113S" ],
+            "departure_runways": [
+                {
+                "airport": "KPVD",
+                "rate": 0,
+                "runway": "5"
+                }
+            ],
+            "wind": {
+                "direction": 50,
+                "gust": 7,
+                "speed": 5
+            }
+        }
+    },
+     "stars_config": {
+        "allow_long_scratchpad":true,
+        "altimeters":["KPVD"],
+        "center": "N041.43.29.033,W071.25.35.559",
+        "coordination_lists":[
+            {"name": ".     PVD D DEP","id": "D", "airports": ["KPVD"]},
+            {"name": ".     EWB DEP", "id": "N", "airports": ["KEWB"]},
+            {"name": ".     OQU DEP", "id": "Q", "airports": ["KOQU"]}
+        ],
+        "display_handoff_facility_only": false,
+        "filters": {
+            "inhibit_ca": [
+                {
+                "id": "BOSNOCA",
+                "description": "BOS CONFLICT SUPPRESS",
+                "type": "circle",
+                "floor": 0,
+                "ceiling": 2000,
+                "radius": 7,
+                "center": "N042.23.05.581,W071.00.43.615"
+                }
+            ],
+            "arrival_acquisition": [
+                {
+                    "id": "ACQ",
+                    "description": "AUTO ACQUISITION",
+                    "type": "polygon",
+                    "vertices": "N041.29.44.632,W072.58.54.494 N041.48.38.298,W072.35.01.519 N042.14.34.429,W072.13.04.671 N042.26.17.911,W071.23.30.589 N042.17.51.043,W071.05.33.847 N042.11.06.307,W070.45.27.603 N042.03.55.285,W070.27.44.236 N041.34.18.000,W070.23.59.016 N041.21.26.842,W070.33.08.964 N040.58.09.202,W070.32.50.645 N040.32.16.683,W071.58.21.260 N041.16.46.910,W072.52.06.214",
+                    "floor": 0,
+                    "ceiling": 23000
+                }
+            ]
+        },
+        "force_ql_self": true,
+        "handoff_sector_display_duration": 5,
+        "pdb": {"hide_gs": true},
+        "radar_sites": {
+          "PVD": {
+            "char": "P",
+            "position": "PVD",
+            "elevation": 50,
+            "primary_range": 60,
+            "secondary_range": 120,
+            "slope_angle": 0.175
+          }
+        },
+        "significant_points":{ 
+            "7TN": {},
+            "7WH": {},
+            "DNE": {},
+            "ORW": {},
+            "PUT": {}
+        },
+        "stars_maps": [
+          "RVMPVD005S", "RVMPVD113S", "RVMPVD019S", 
+		  "RVMPVD011S", "RVMPVD110S", "RVMPVD006S",
+		  "RVMPVD005S", "RVMPVD113S", "RVMPVD019S", "RVMPVD002S", "RVMPVD001S","RVMPVDCIR1","RVMPVD020S","RVMPVD014S","RVMPVD016S","RVMPVD007S","RVMPVD009S","ALL RADARS 40 MILE MAP","RVMPVD023S","RVMPVD025S","AREA4RSHADED","",
+		  "RVMPVD011S", "RVMPVD110S", "RVMPVD006S","RVMPVD004S","RVMPVD003S","RVMFIXTGTS","RVMPVD018S","RVMPVD021S","RVMPVD017S","RVMPVD008S","RVMPVD010S","RVMPVD012S","RVMPVD024S","RVMPVD028S"
+        ],
+        "tcp_configuration":{ 
+            "tcps":{ 
+                "1A":{ 
+                    "tcp_name": "ARRIVAL", 
+                    "facility_id": "NCA", 
+                    "terminal_sector": "A",
+                    "excluded_exit_fixes":{"PVD"}
+                },
+                "1D":{
+                    "tcp_name": "Departure",
+                    "facility_id": "NCA",
+                    "terminal_sector": "A",
+                    "excluded_exit_fixes":{}
+                },
+                "1T":{
+                    "tcp_name": "Local",
+                    "facility_id": "NCA",
+                    "terminal_sector": "A",
+                    "excluded_exit_fixes":{}
+                },
+                "1E":{
+                    "tcp_name": "New Bedford Tower",
+                    "facility_id": "NCA",
+                    "terminal_sector": "A",
+                    "excluded_exit_fixes":{}
+                }
+            },
+            "fix_pair_configuration":{
+                "NCA":{ 
+                    "sector_configurations":[ 
+                        {
+                            "configuration_id": "FG2", 
+                            "configuration_name": "RWY 23/EWB/A", 
+                            "default_configuration": true 
+                        },
+                        {
+                            "configuration_id": "FG3",
+                            "configuration_name": "RWY 05/34/EWB/A"
+                        }
+                    ],
+                    "fix_pairs":[ 
+                        {
+                            "terminal_sector": "A",
+                            "flight_type": "arrival",
+                            "entry_fix":"ORW",
+                            "exit_fix":"PVD"
+                        },
+                        {
+                            "terminal_sector": "A",
+                            "flight_type": "arrival",
+                            "entry_fix":"ORW",
+                            "exit_fix":"OQU"
+                        },
+                        {
+                            "terminal_sector": "A",
+                            "flight_type": "arrival",
+                            "entry_fix":"7WH",
+                            "exit_fix":"PVD"
+                        },
+                        {
+                            "terminal_sector": "A",
+                            "flight_type": "arrival",
+                            "entry_fix":"7WH",
+                            "exit_fix":"OQU"
+                        },
+                        {
+                            "terminal_sector": "A",
+                            "flight_type": "departure",
+                            "entry_fix":"PVD",
+                            "exit_fix":"PUT"
+                        },
+                        {
+                            "terminal_sector": "A",
+                            "flight_type": "departure",
+                            "entry_fix":"PVD",
+                            "exit_fix":"7TN"
+                        },
+                        {
+                            "terminal_sector": "A",
+                            "flight_type": "departure",
+                            "entry_fix":"OQU",
+                            "exit_fix":"PUT"
+                        },
+                        {
+                            "terminal_sector": "A",
+                            "flight_type": "departure",
+                            "entry_fix":"OQU",
+                            "exit_fix":"7TN"
+                        },
+                        {
+                            "terminal_sector": "A",
+                            "flight_type": "overflight",
+                            "entry_fix":"ORW",
+                            "exit_fix":"7WH"
+                        }
+                    ],
+                    "fix_pair_tcp_assignments":[  
+                        {
+                            "configuration": ["FG2","FG3"],
+                            "flight_type": "arrival",
+                            "entry_fix":"ORW",
+                            "exit_fix":"PVD",
+                            "tcp": "1D"
+                        },
+                        {
+                            "configuration": ["FG2","FG3"],
+                            "flight_type": "arrival",
+                            "entry_fix":"ORW",
+                            "exit_fix":"OQU",
+                            "tcp": "1D"
+                        },
+                        {
+                            "configuration": ["FG2","FG3"],
+                            "flight_type": "arrival",
+                            "entry_fix":"7WH",
+                            "exit_fix":"PVD",
+                            "tcp": "1D"
+                        },
+                        {
+                            "configuration": ["FG2","FG3"],
+                            "flight_type": "arrival",
+                            "entry_fix":"7WH",
+                            "exit_fix":"OQU",
+                            "tcp": "1D"
+                        },
+                        {
+                            "configuration": ["FG2","FG3"],
+                            "flight_type": "departure",
+                            "entry_fix":"PVD",
+                            "exit_fix":"PUT",
+                            "tcp": "1D"
+                        },
+                        {
+                            "configuration": ["FG2"],
+                            "flight_type": "departure",
+                            "entry_fix":"OQU",
+                            "exit_fix":"PUT",
+                            "tcp": "1D"
+                        },
+                        {
+                            "configuration": ["FG3"],
+                            "flight_type": "departure",
+                            "entry_fix":"OQU",
+                            "exit_fix":"PUT",
+                            "tcp": "1A"
+                        },
+                        {
+                            "configuration": ["FG2","FG3"],
+                            "flight_type": "overflight",
+                            "entry_fix":"ORW",
+                            "exit_fix":"7WH",
+                            "tcp": "1D"
+                        }
+                    ]
+                }
+            }
+        },
+        "video_map_file": "videomaps/PVD-videomaps.gob.zst"
+    }
+}

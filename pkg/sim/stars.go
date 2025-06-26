@@ -368,11 +368,6 @@ type FilterRegion struct {
 
 type FilterRegions []FilterRegion
 
-type TCPConfiguration struct {
-	TCPs                 map[string]TCPSpec                       `json:"tcps"`
-	FixPairConfiguration map[string]*FixPairFacilityConfiguration `json:"fix_pair_configuration"`
-}
-
 type TCPSpec struct {
 	TCPName           string   `json:"tcp_name"`
 	FacilityID        string   `json:"facility_id"`
@@ -380,23 +375,10 @@ type TCPSpec struct {
 	ExcludedExitFixes []string `json:"excluded_exit_fixes"`
 }
 
-type FixPairFacilityConfiguration struct {
-	SectorConfigurations  []SectorConfiguration  `json:"sector_configurations"`
-	FixPairs              []FixPair              `json:"fix_pairs"`
-	FixPairTCPAssignments []FixPairTCPAssignment `json:"fix_pair_tcp_assignments"`
-}
-
 type SectorConfiguration struct {
 	ConfigurationID      string `json:"configuration_id"`
 	ConfigurationName    string `json:"configuration_name"`
 	DefaultConfiguration bool   `json:"default_configuration"`
-}
-
-type FixPair struct {
-	TerminalSector string `json:"terminal_sector"`
-	FlightType     string `json:"flight_type"`
-	EntryFix       string `json:"entry_fix"`
-	ExitFix        string `json:"exit_fix"`
 }
 
 type FixPairTCPAssignment struct {
@@ -438,29 +420,7 @@ func (fa *STARSFacilityAdaptation) TCPForFixPair(tracon string, ft av.TypeOfFlig
 	if !ok {
 		return ""
 	}
-
-	var defaults []string
-	for _, sc := range cfg.SectorConfigurations {
-		if sc.DefaultConfiguration {
-			defaults = append(defaults, sc.ConfigurationID)
-		}
-	}
-
-	ftStr := flightTypeToString(ft)
-	for _, a := range cfg.FixPairTCPAssignments {
-		if strings.EqualFold(a.EntryFix, entry) && strings.EqualFold(a.ExitFix, exit) &&
-			strings.EqualFold(a.FlightType, ftStr) {
-			if len(a.Configuration) == 0 {
-				return a.TCP
-			}
-			for _, c := range a.Configuration {
-				if slices.Contains(defaults, c) {
-					return a.TCP
-				}
-			}
-		}
-	}
-	return ""
+	return tcpForFixPair(cfg, ft, entry, exit)
 }
 
 type STARSControllerConfig struct {

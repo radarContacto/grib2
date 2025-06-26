@@ -1,7 +1,6 @@
 package sim
 
 import (
-	"slices"
 	"strings"
 
 	av "github.com/mmp/vice/pkg/aviation"
@@ -22,34 +21,9 @@ type SectorConfiguration struct {
 	DefaultConfiguration bool   `json:"default_configuration"`
 }
 
-// FixPair describes an entry/exit pair for a flight type.
-type FixPair struct {
-	TerminalSector string `json:"terminal_sector"`
-	FlightType     string `json:"flight_type"`
-	EntryFix       string `json:"entry_fix"`
-	ExitFix        string `json:"exit_fix"`
-}
-
-// FixPairTCPAssignment maps a fix pair to a TCP for one or more configurations.
-type FixPairTCPAssignment struct {
-	Configuration []string `json:"configuration"`
-	FlightType    string   `json:"flight_type"`
-	EntryFix      string   `json:"entry_fix"`
-	ExitFix       string   `json:"exit_fix"`
-	TCP           string   `json:"tcp"`
-}
-
-// FixPairConfiguration groups all fix pair data for a facility.
-type FixPairConfiguration struct {
-	SectorConfigurations  []SectorConfiguration  `json:"sector_configurations"`
-	FixPairs              []FixPair              `json:"fix_pairs"`
-	FixPairTCPAssignments []FixPairTCPAssignment `json:"fix_pair_tcp_assignments"`
-}
-
-// TCPConfiguration contains TCP specifications and fix pair rules.
 type TCPConfiguration struct {
-	TCPs                 map[string]TCPSpec              `json:"tcps"`
-	FixPairConfiguration map[string]FixPairConfiguration `json:"fix_pair_configuration"`
+	TCPs                 map[string]TCPSpec                       `json:"tcps"`
+	FixPairConfiguration map[string]*FixPairFacilityConfiguration `json:"fix_pair_configuration"`
 }
 
 func flightTypeString(ft av.TypeOfFlight) string {
@@ -67,23 +41,30 @@ func flightTypeString(ft av.TypeOfFlight) string {
 
 // TCPForFixPair returns the TCP for the given fix pair using the active
 // default sector configuration.
-func (fa STARSFacilityAdaptation) TCPForFixPair(ft av.TypeOfFlight, entry, exit string) string {
+func tcpForFixPair(cfg *FixPairFacilityConfiguration, ft av.TypeOfFlight, entry, exit string) string {
+	var defaults []string
+	for _, sc := range cfg.SectorConfigurations {
+		if sc.DefaultConfiguration {
+			defaults = append(defaults, sc.ConfigurationID)
+		}
+	}
 	t := flightTypeString(ft)
-	for _, fac := range fa.TCPConfiguration.FixPairConfiguration {
-		var defaults []string
-		for _, sc := range fac.SectorConfigurations {
-			if sc.DefaultConfiguration {
-				defaults = append(defaults, sc.ConfigurationID)
+	for _, as := range cfg.FixPairTCPAssignments {
+		if as.FlightType == t && strings.EqualFold(as.EntryFix, entry) && strings.EqualFold(as.ExitFix, exit) {
+			if len(as.Configuration) == 0 {
+				return as.TCP
 			}
 		}
-		for _, as := range fac.FixPairTCPAssignments {
-			if as.FlightType == t && strings.EqualFold(as.EntryFix, entry) && strings.EqualFold(as.ExitFix, exit) {
-				for _, cfg := range as.Configuration {
-					if slices.Contains(defaults, cfg) {
-						return as.TCP
-					}
-				}
-			}
+	}
+	return ""
+}
+
+// TCPForFixPair returns the TCP for the given fix pair using the active
+// default sector configuration.
+func (fa STARSFacilityAdaptation) TCPForFixPair(ft av.TypeOfFlight, entry, exit string) string {
+	for _, fac := range fa.TCPConfiguration.FixPairConfiguration {
+		if tcp := tcpForFixPair(fac, ft, entry, exit); tcp != "" {
+			return tcp
 		}
 	}
 	return ""

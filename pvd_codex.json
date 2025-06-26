@@ -156,7 +156,7 @@
 			  "arrivals":[
 				  {
                     "route":"GON MINNK",
-                    "entrty_fix":"ORW",
+                    "entry_fix":"ORW",
                     "exit_fix": "PVD",
                     "initial_controller": "ZCB_47",
 					"airlines": {

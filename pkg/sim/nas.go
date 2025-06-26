@@ -250,6 +250,20 @@ func (sc *STARSComputer) CreateFlightPlan(fp STARSFlightPlan) (STARSFlightPlan, 
 	return fp, nil
 }
 
+// TraconForFixPair returns the TRACON that contains the given fix pair, if any.
+func (comp *ERAMComputer) TraconForFixPair(ft av.TypeOfFlight, entry, exit string) string {
+	for id, sc := range comp.STARSComputers {
+		if sc.FacilityAdaptation == nil {
+			continue
+		}
+		if tracon := sc.FacilityAdaptation.TRACONForFixPair(ft, entry, exit); tracon != "" {
+			return tracon
+		}
+		_ = id
+	}
+	return ""
+}
+
 func (sc *STARSComputer) getListIndex() (int, error) {
 	if len(sc.AvailableIndices) == 0 {
 		return 0, ErrNoMoreListIndices
@@ -405,17 +419,22 @@ func (comp *ERAMComputer) SendFlightPlan(fp *STARSFlightPlan, tracon string, sim
 	msg.MessageType = Plan
 	msg.SourceID = formatSourceID(comp.Identifier, simTime)
 
-	if coordFix, ok := comp.Adaptation.CoordinationFixes[fp.CoordinationFix]; !ok {
-		return av.ErrNoMatchingFix
-	} else if adaptFix, err := coordFix.Fix(fp.Altitude); err != nil {
-		return err
-	} else {
-		// TODO: change tracon to the fix pair assignment (this will be in the adaptation)
-		err := comp.SendMessageToSTARSFacility(tracon, msg)
-		if err != nil {
-			comp.SendMessageToERAM(av.DB.TRACONs[tracon].ARTCC, msg)
-		}
-		fp.ContainedFacilities = append(fp.ContainedFacilities, adaptFix.ToFacility)
+	       if coordFix, ok := comp.Adaptation.CoordinationFixes[fp.CoordinationFix]; !ok {
+               return av.ErrNoMatchingFix
+       } else if adaptFix, err := coordFix.Fix(fp.Altitude); err != nil {
+               return err
+       } else {
+               if tracon == "" {
+                       tracon = comp.TraconForFixPair(fp.TypeOfFlight, fp.EntryFix, fp.ExitFix)
+               }
+               if tracon == "" {
+                       return av.ErrNoSTARSFacility
+               }
+               err := comp.SendMessageToSTARSFacility(tracon, msg)
+               if err != nil {
+                       comp.SendMessageToERAM(av.DB.TRACONs[tracon].ARTCC, msg)
+               }
+               fp.ContainedFacilities = append(fp.ContainedFacilities, adaptFix.ToFacility)
 		return nil
 	}
 }

@@ -16,6 +16,25 @@ import (
 	"github.com/mmp/vice/pkg/util"
 )
 
+// fpParseFacility and fpParseTRACON are set by the STARSPane so that the
+// parsing code can reference facility adaptation information when needed.
+var fpParseFacility *sim.STARSFacilityAdaptation
+var fpParseTRACON string
+
+// setFPParseContext temporarily sets the facility adaptation and TRACON used
+// when parsing flight plans. A function is returned that should be called to
+// restore the previous state.
+func setFPParseContext(fa *sim.STARSFacilityAdaptation, tracon string) func() {
+	oldFa := fpParseFacility
+	oldTracon := fpParseTRACON
+	fpParseFacility = fa
+	fpParseTRACON = tracon
+	return func() {
+		fpParseFacility = oldFa
+		fpParseTRACON = oldTracon
+	}
+}
+
 // All parsing functions have this signature; they take a string to try to
 // parse, an optional callback to validate scratchpads (required if
 // scratchpads may be parsed), and the STARSFlightPlanSpecifier to update
@@ -432,7 +451,6 @@ func parseFpTCP(s string, checkSp func(s string, primary bool) bool, spec *sim.S
 
 func parseFpTCPOrFixPair(s string, checkSp func(s string, primary bool) bool, spec *sim.STARSFlightPlanSpecifier) (bool, error) {
 	// TODO: use per-controller defaults for entry/exit if not specified.
-	// TODO: assign TCP based on fix pair if it's not specified
 	// TODO: adapted single-char ids
 	if strings.Contains(s, "*") { // Fix pair(ish)
 		if s[0] != '*' {
@@ -448,8 +466,18 @@ func parseFpTCPOrFixPair(s string, checkSp func(s string, primary bool) bool, sp
 			spec.ExitFix.Set(exit)
 		}
 		if len(s) > 0 {
-			return parseFpTypeOfFlight(s, checkSp, spec)
+			if ok, err := parseFpTypeOfFlight(s, checkSp, spec); !ok || err != nil {
+				return ok, err
+			}
 		}
+		if fpParseFacility != nil && !spec.TrackingController.IsSet && spec.EntryFix.IsSet && spec.ExitFix.IsSet {
+			ft := spec.TypeOfFlight.GetOr(av.FlightTypeUnknown)
+			tcp := fpParseFacility.TCPForFixPair(fpParseTRACON, ft, spec.EntryFix.Get(), spec.ExitFix.Get())
+			if tcp != "" {
+				spec.TrackingController.Set(tcp)
+			}
+		}
+		return true, nil
 	} else if len(s) == 2 && s[0] >= '1' && s[0] <= '9' && s[1] >= 'A' && s[1] <= 'Z' { // TCP
 		spec.TrackingController.Set(s)
 		return true, nil

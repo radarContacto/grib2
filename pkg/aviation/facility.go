@@ -9,7 +9,11 @@ type FacilityControlPosition struct {
 }
 
 // Facility describes an air traffic facility and its controllers in the codex
-// scenario format.
+// scenario format. FacilityType is one of:
+//
+//	"T" - adjacent TRACON
+//	"L" - local STARS facility
+//	"A" - ARTCC
 type Facility struct {
 	FacilityType          string                    `json:"facility_type"`
 	FacilityName          string                    `json:"facility_name"`

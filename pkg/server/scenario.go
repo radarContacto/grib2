@@ -397,145 +397,144 @@ func (s *scenario) PostDeserialize(sg *scenarioGroup, e *util.ErrorLogger, manif
 				}
 			}
 			if _, ok := sg.ControlPositions[callsign]; !ok {
-					e.ErrorString("controller %q not defined in the scenario group's \"control_positions\"", callsign)
-				}
+				e.ErrorString("controller %q not defined in the scenario group's \"control_positions\"", callsign)
+			}
 
 			// Make sure any airports claimed for departures are valid
-				for _, airportSID := range ctrl.Departures {
-					ap, sidRunway, haveSIDRunway := strings.Cut(airportSID, "/")
-					if sids, ok := activeAirportSIDs[ap]; !ok {
-						e.ErrorString("airport %q is not departing aircraft in this scenario", ap)
-					} else if haveSIDRunway {
-						// If there's something after a slash, make sure it's
-						// either a valid SID or runway.
-						_, okSID := sids[sidRunway]
-						_, okRunway := activeAirportRunways[ap][sidRunway]
-						if !okSID && !okRunway {
-							e.ErrorString("%q at airport %q is neither an active runway or SID in this scenario", sidRunway, ap)
-						}
+			for _, airportSID := range ctrl.Departures {
+				ap, sidRunway, haveSIDRunway := strings.Cut(airportSID, "/")
+				if sids, ok := activeAirportSIDs[ap]; !ok {
+					e.ErrorString("airport %q is not departing aircraft in this scenario", ap)
+				} else if haveSIDRunway {
+					// If there's something after a slash, make sure it's
+					// either a valid SID or runway.
+					_, okSID := sids[sidRunway]
+					_, okRunway := activeAirportRunways[ap][sidRunway]
+					if !okSID && !okRunway {
+						e.ErrorString("%q at airport %q is neither an active runway or SID in this scenario", sidRunway, ap)
+					}
 
 					haveDepartureSIDSpec = haveDepartureSIDSpec || okSID
-						haveDepartureRunwaySpec = haveDepartureRunwaySpec || okRunway
-						if haveDepartureSIDSpec && haveDepartureRunwaySpec {
-							e.ErrorString("cannot use both runways and SIDs to specify the departure controller")
-						}
-				}
-			}
-
-				// Make sure all inbound flows are valid. Below we make sure all
-				// included arrivals have a controller.
-				for _, flow := range ctrl.InboundFlows {
-					if _, ok := s.InboundFlowDefaultRates[flow]; !ok {
-						e.ErrorString("inbound flow %q not found in scenario \"inbound_rates\"", flow)
-					} else if f, ok := sg.InboundFlows[flow]; !ok {
-						e.ErrorString("inbound flow %q not found in scenario group \"inbound_flows\"", flow)
-					} else {
-						// Is there a handoff to a human controller?
-						overflightHasHandoff := func(of av.Overflight) bool {
-							return slices.ContainsFunc(of.Waypoints, func(wp av.Waypoint) bool { return wp.HumanHandoff })
-						}
-						if len(f.Arrivals) == 0 && !slices.ContainsFunc(f.Overflights, overflightHasHandoff) {
-							// It's just overflights without handoffs
-							e.ErrorString("no inbound flows in %q have handoffs", flow)
-						}
-					}
-				}
-				e.Pop()
-			}
-		}
-		if primaryController == "" {
-			e.ErrorString("No controller in \"multi_controllers\" was specified as \"primary\"")
-		}
-
-		// Make sure each active departure config (airport and possibly
-		// SID) has exactly one controller handling its departures.
-		validateDep := func(active map[string]map[string]interface{}, check func(ctrl *av.MultiUserController, airport, spec string) bool) {
-			for airport, specs := range active {
-				for spec := range specs {
-					controller := ""
-					for callsign, ctrl := range controllers {
-						if check(ctrl, airport, spec) {
-							if controller != "" {
-								e.ErrorString("both %s and %s expect to handle %s/%s departures",
-									controller, callsign, airport, spec)
-							}
-							controller = callsign
-						}
-					}
-					if controller == "" {
-						e.ErrorString("no controller found that is covering %s/%s departures", airport, spec)
+					haveDepartureRunwaySpec = haveDepartureRunwaySpec || okRunway
+					if haveDepartureSIDSpec && haveDepartureRunwaySpec {
+						e.ErrorString("cannot use both runways and SIDs to specify the departure controller")
 					}
 				}
 			}
-		}
-		if haveDepartureSIDSpec {
-			validateDep(activeAirportSIDs, func(ctrl *av.MultiUserController, airport, spec string) bool {
-				return ctrl.IsDepartureController(airport, "", spec)
-			})
-		} else if haveDepartureRunwaySpec {
-			validateDep(activeAirportRunways, func(ctrl *av.MultiUserController, airport, spec string) bool {
-				return ctrl.IsDepartureController(airport, spec, "")
-			})
-		} else {
-			// Just airports
-			for airport := range activeDepartureAirports {
-				if sg.Airports[airport].DepartureController != "" {
-					// It's covered by a virtual controller
-					continue
-				}
 
+			// Make sure all inbound flows are valid. Below we make sure all
+			// included arrivals have a controller.
+			for _, flow := range ctrl.InboundFlows {
+				if _, ok := s.InboundFlowDefaultRates[flow]; !ok {
+					e.ErrorString("inbound flow %q not found in scenario \"inbound_rates\"", flow)
+				} else if f, ok := sg.InboundFlows[flow]; !ok {
+					e.ErrorString("inbound flow %q not found in scenario group \"inbound_flows\"", flow)
+				} else {
+					// Is there a handoff to a human controller?
+					overflightHasHandoff := func(of av.Overflight) bool {
+						return slices.ContainsFunc(of.Waypoints, func(wp av.Waypoint) bool { return wp.HumanHandoff })
+					}
+					if len(f.Arrivals) == 0 && !slices.ContainsFunc(f.Overflights, overflightHasHandoff) {
+						// It's just overflights without handoffs
+						e.ErrorString("no inbound flows in %q have handoffs", flow)
+					}
+				}
+			}
+			e.Pop()
+		}
+	}
+	if primaryController == "" {
+		e.ErrorString("No controller in \"multi_controllers\" was specified as \"primary\"")
+	}
+
+	// Make sure each active departure config (airport and possibly
+	// SID) has exactly one controller handling its departures.
+	validateDep := func(active map[string]map[string]interface{}, check func(ctrl *av.MultiUserController, airport, spec string) bool) {
+		for airport, specs := range active {
+			for spec := range specs {
 				controller := ""
 				for callsign, ctrl := range controllers {
-					if ctrl.IsDepartureController(airport, "", "") {
+					if check(ctrl, airport, spec) {
 						if controller != "" {
-							e.ErrorString("both %s and %s expect to handle %s departures",
-								controller, callsign, airport)
+							e.ErrorString("both %s and %s expect to handle %s/%s departures",
+								controller, callsign, airport, spec)
 						}
 						controller = callsign
 					}
 				}
 				if controller == "" {
-					e.ErrorString("no controller found that is covering %s departures", airport)
+					e.ErrorString("no controller found that is covering %s/%s departures", airport, spec)
 				}
 			}
 		}
-
-		// Make sure all controllers are either the primary or have a path
-		// of backup controllers that eventually ends with the primary.
-		havePathToPrimary := make(map[string]interface{})
-		havePathToPrimary[primaryController] = nil
-		var followPathToPrimary func(callsign string, mc *av.MultiUserController, depth int) bool
-		followPathToPrimary = func(callsign string, mc *av.MultiUserController, depth int) bool {
-			if callsign == "" {
-				return false
-			}
-			if _, ok := havePathToPrimary[callsign]; ok {
-				return true
-			}
-			if depth == 0 || mc.BackupController == "" {
-				return false
-			}
-
-			bmc, ok := controllers[mc.BackupController]
-			if !ok {
-				e.ErrorString("Backup controller %q for %q is unknown",
-					mc.BackupController, callsign)
-				return false
+	}
+	if haveDepartureSIDSpec {
+		validateDep(activeAirportSIDs, func(ctrl *av.MultiUserController, airport, spec string) bool {
+			return ctrl.IsDepartureController(airport, "", spec)
+		})
+	} else if haveDepartureRunwaySpec {
+		validateDep(activeAirportRunways, func(ctrl *av.MultiUserController, airport, spec string) bool {
+			return ctrl.IsDepartureController(airport, spec, "")
+		})
+	} else {
+		// Just airports
+		for airport := range activeDepartureAirports {
+			if sg.Airports[airport].DepartureController != "" {
+				// It's covered by a virtual controller
+				continue
 			}
 
-			if followPathToPrimary(mc.BackupController, bmc, depth-1) {
-				havePathToPrimary[callsign] = nil
-				return true
+			controller := ""
+			for callsign, ctrl := range controllers {
+				if ctrl.IsDepartureController(airport, "", "") {
+					if controller != "" {
+						e.ErrorString("both %s and %s expect to handle %s departures",
+							controller, callsign, airport)
+					}
+					controller = callsign
+				}
 			}
+			if controller == "" {
+				e.ErrorString("no controller found that is covering %s departures", airport)
+			}
+		}
+	}
+
+	// Make sure all controllers are either the primary or have a path
+	// of backup controllers that eventually ends with the primary.
+	havePathToPrimary := make(map[string]interface{})
+	havePathToPrimary[primaryController] = nil
+	var followPathToPrimary func(callsign string, mc *av.MultiUserController, depth int) bool
+	followPathToPrimary = func(callsign string, mc *av.MultiUserController, depth int) bool {
+		if callsign == "" {
 			return false
 		}
-		for callsign, mc := range controllers {
-			if !followPathToPrimary(callsign, mc, 25) {
-				e.ErrorString("controller %q doesn't have a valid backup controller", callsign)
-			}
+		if _, ok := havePathToPrimary[callsign]; ok {
+			return true
 		}
-		e.Pop()
+		if depth == 0 || mc.BackupController == "" {
+			return false
+		}
+
+		bmc, ok := controllers[mc.BackupController]
+		if !ok {
+			e.ErrorString("Backup controller %q for %q is unknown",
+				mc.BackupController, callsign)
+			return false
+		}
+
+		if followPathToPrimary(mc.BackupController, bmc, depth-1) {
+			havePathToPrimary[callsign] = nil
+			return true
+		}
+		return false
 	}
+	for callsign, mc := range controllers {
+		if !followPathToPrimary(callsign, mc, 25) {
+			e.ErrorString("controller %q doesn't have a valid backup controller", callsign)
+		}
+	}
+	e.Pop()
 
 	for _, name := range util.SortedMapKeys(s.InboundFlowDefaultRates) {
 		e.Push("Inbound flow " + name)

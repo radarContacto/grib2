@@ -351,70 +351,47 @@
 				 ]
                 }
 	},
-    "control_positions": {
-        "BOA":[ 
-            {
-                "sector_routing_id": "1M", 
-                "frequency": 120600,
-                "radio_name": "Boston Approach"
-            }
-        ],
-        "NCA":[
-            {
-                "sector_routing_id": "1A",
-                "frequency": 127900,
-                "radio_name": "Providence Approach"
-            },
-            {
-                "sector_routing_id": "1D",
-                "frequency": 123675,
-                "radio_name": "Providence Departure"
-            },
-            {
-                "sector_routing_id": "1T",
-                "frequency": 120700,
-                "radio_name": "Providence Tower"
-            },
-            {
-                "sector_routing_id": "1Q",
-                "frequency": 126350,
-                "radio_name": "Quonset Tower"
-            }
-        ],
-        "ZCB":[
-            {
-                "sector_routing_id": "18",
-                "frequency": 128750,
-                "radio_name": "Boston Center"
-            },
-            {
-                "sector_routing_id": "32",
-                "frequency": 135800,
-                "radio_name": "Boston Center"
-            },
-            {
-                "sector_routing_id": "34",
-                "frequency": 124850,
-                "radio_name": "Boston Center"
-            },
-            {
-                "sector_routing_id": "47",
-                "frequency": 134700,
-                "radio_name": "Boston Center"
-            }
-        ]
-    },
     "facilities": { 
         "BOA": {
             "facility_type": "T", 
             "facility_name": "Boston Approach",
-            "adjacent_tracon_id": 2 
+            "adjacent_tracon_id": 2,
+            "control_positions":[
+                {
+                    "sector_routing_id": "1M", 
+                    "frequency": 120600,
+                    "radio_name": "Boston Approach"
+                }
+            ]
         },
         "NCA": {
             "facility_type": "L",
             "facility_name": "Providence Approach",
             "terminal_sectors": { 
                 "A": "all sectors"
+            },
+            "control_positions":[
+                {
+                    "sector_routing_id": "1A",
+                    "frequency": 127900,
+                    "radio_name": "Providence Approach"
+                },
+                {
+                    "sector_routing_id": "1D",
+                    "frequency": 123675,
+                    "radio_name": "Providence Departure"
+                },
+                {
+                    "sector_routing_id": "1T",
+                    "frequency": 120700,
+                    "radio_name": "Providence Tower"
+                },
+                {
+                    "sector_routing_id": "1Q",
+                    "frequency": 126350,
+                    "radio_name": "Quonset Tower"
+                }
+            ]
         },
         "NNN": {
             "facility_type": "T",
@@ -424,7 +401,29 @@
         "ZCB": {
             "facility_type": "A", 
             "facility_name": "Boston Center",
-            "abbreviated_facility_id": "C" 
+            "abbreviated_facility_id": "C",
+            "control_positions":[
+                {
+                    "sector_routing_id": "18",
+                    "frequency": 128750,
+                    "radio_name": "Boston Center"
+                },
+                {
+                    "sector_routing_id": "32",
+                    "frequency": 135800,
+                    "radio_name": "Boston Center"
+                },
+                {
+                    "sector_routing_id": "34",
+                    "frequency": 124850,
+                    "radio_name": "Boston Center"
+                },
+                {
+                    "sector_routing_id": "47",
+                    "frequency": 134700,
+                    "radio_name": "Boston Center"
+                }
+            ] 
         },
         "ZCN": {
             "facility_type": "A",
@@ -654,25 +653,25 @@
                     "tcp_name": "ARRIVAL", 
                     "facility_id": "NCA", 
                     "terminal_sector": "A",
-                    "excluded_exit_fixes":{"PVD"}
+                    "excluded_exit_fixes":["PVD"]
                 },
                 "1D":{
                     "tcp_name": "Departure",
                     "facility_id": "NCA",
                     "terminal_sector": "A",
-                    "excluded_exit_fixes":{}
+                    "excluded_exit_fixes":[]
                 },
                 "1T":{
                     "tcp_name": "Local",
                     "facility_id": "NCA",
                     "terminal_sector": "A",
-                    "excluded_exit_fixes":{}
+                    "excluded_exit_fixes":[]
                 },
                 "1E":{
                     "tcp_name": "New Bedford Tower",
                     "facility_id": "NCA",
                     "terminal_sector": "A",
-                    "excluded_exit_fixes":{}
+                    "excluded_exit_fixes":[]
                 }
             },
             "fix_pair_configuration":{

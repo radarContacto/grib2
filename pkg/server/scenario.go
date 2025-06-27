@@ -75,6 +75,9 @@ type virtualPosition struct {
 
 // fixpair fills legacy scenario fields from codex-specific ones.
 func (s *scenario) convertCodex() {
+	if s.SoloConfiguration != nil || s.MultiConfiguration != nil || len(s.VirtualPositions) > 0 {
+		s.CodexScenario = true
+	}
 	if s.SoloConfiguration != nil {
 		if s.SoloController == "" {
 			controllers := util.SortedMapKeys(s.SoloConfiguration.SoloPosition)
@@ -127,6 +130,8 @@ type scenario struct {
 	DefaultSplit        string                   `json:"default_split"`
 	Wind                av.Wind                  `json:"wind"`
 	VirtualControllers  []string                 `json:"controllers"`
+
+	CodexScenario bool `json:"-"`
 
 	// Map from inbound flow names to a map from airport name to default rate,
 	// with "overflights" a special case to denote overflights
@@ -372,20 +377,22 @@ func (s *scenario) PostDeserialize(sg *scenarioGroup, e *util.ErrorLogger, manif
 			e.ErrorString("did not find \"default_split\" %q in \"multi_controllers\" splits", s.DefaultSplit)
 		}
 	}
-	for name, controllers := range s.SplitConfigurations {
-		primaryController := ""
-		e.Push("\"multi_controllers\": split \"" + name + "\"")
+	if !s.CodexScenario {
+		for name, controllers := range s.SplitConfigurations {
+			primaryController := ""
+			e.Push("\"multi_controllers\": split \"" + name + "\"")
 
-		haveDepartureSIDSpec, haveDepartureRunwaySpec := false, false
+			haveDepartureSIDSpec, haveDepartureRunwaySpec := false, false
 
-		for callsign, ctrl := range controllers {
-			e.Push(callsign)
-			if ctrl.Primary {
-				if primaryController != "" {
-					e.ErrorString("multiple controllers specified as \"primary\": %s %s",
-						primaryController, callsign)
-				} else {
-					primaryController = callsign
+			for callsign, ctrl := range controllers {
+				e.Push(callsign)
+				if ctrl.Primary {
+					if primaryController != "" {
+						e.ErrorString("multiple controllers specified as \"primary\": %s %s",
+							primaryController, callsign)
+					} else {
+						primaryController = callsign
+					}
 				}
 			}
 
@@ -415,25 +422,26 @@ func (s *scenario) PostDeserialize(sg *scenarioGroup, e *util.ErrorLogger, manif
 				}
 			}
 
-			// Make sure all inbound flows are valid. Below we make sure all
-			// included arrivals have a controller.
-			for _, flow := range ctrl.InboundFlows {
-				if _, ok := s.InboundFlowDefaultRates[flow]; !ok {
-					e.ErrorString("inbound flow %q not found in scenario \"inbound_rates\"", flow)
-				} else if f, ok := sg.InboundFlows[flow]; !ok {
-					e.ErrorString("inbound flow %q not found in scenario group \"inbound_flows\"", flow)
-				} else {
-					// Is there a handoff to a human controller?
-					overflightHasHandoff := func(of av.Overflight) bool {
-						return slices.ContainsFunc(of.Waypoints, func(wp av.Waypoint) bool { return wp.HumanHandoff })
-					}
-					if len(f.Arrivals) == 0 && !slices.ContainsFunc(f.Overflights, overflightHasHandoff) {
-						// It's just overflights without handoffs
-						e.ErrorString("no inbound flows in %q have handoffs", flow)
+				// Make sure all inbound flows are valid. Below we make sure all
+				// included arrivals have a controller.
+				for _, flow := range ctrl.InboundFlows {
+					if _, ok := s.InboundFlowDefaultRates[flow]; !ok {
+						e.ErrorString("inbound flow %q not found in scenario \"inbound_rates\"", flow)
+					} else if f, ok := sg.InboundFlows[flow]; !ok {
+						e.ErrorString("inbound flow %q not found in scenario group \"inbound_flows\"", flow)
+					} else {
+						// Is there a handoff to a human controller?
+						overflightHasHandoff := func(of av.Overflight) bool {
+							return slices.ContainsFunc(of.Waypoints, func(wp av.Waypoint) bool { return wp.HumanHandoff })
+						}
+						if len(f.Arrivals) == 0 && !slices.ContainsFunc(f.Overflights, overflightHasHandoff) {
+							// It's just overflights without handoffs
+							e.ErrorString("no inbound flows in %q have handoffs", flow)
+						}
 					}
 				}
+				e.Pop()
 			}
-			e.Pop()
 		}
 		if primaryController == "" {
 			e.ErrorString("No controller in \"multi_controllers\" was specified as \"primary\"")
@@ -595,7 +603,7 @@ func (s *scenario) PostDeserialize(sg *scenarioGroup, e *util.ErrorLogger, manif
 					hasHandoff = true
 				}
 			}
-			if hasHandoff {
+			if hasHandoff && !s.CodexScenario {
 				for split, controllers := range s.SplitConfigurations {
 					e.Push("\"multi_controllers\": split \"" + split + "\"")
 					count := 0

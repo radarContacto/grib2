@@ -464,7 +464,6 @@
             },
             "virtual_positions": { 
                 "1T":{"consolidated_positions":[]},
-                "1E":{"consolidated_positions":[]},
                 "1Q":{"consolidated_positions":[]},
                 "ZCB_47":{"consolidated_positions":["ZCB_34"]},
                 "ZCB_18":{"consolidated_positions":[]},
@@ -492,11 +491,6 @@
                 "airport": "KOQU",
                 "rate": 0,
                 "runway": "16"
-                },
-                {
-                "airport": "KEWB",
-                "rate": 0,
-                "runway": "32"
                 }
             ],
             "inbound_rates": {
@@ -538,7 +532,6 @@
             },
             "virtual_positions": {
                 "1T":{"consolidated_positions":[]},
-                "1E":{"consolidated_positions":[]},
                 "1Q":{"consolidated_positions":[]},
                 "ZCB_47":{"consolidated_positions":["ZCB_34"]},
                 "ZCB_18":{"consolidated_positions":[]},
@@ -594,7 +587,6 @@
         "center": "N041.43.29.033,W071.25.35.559",
         "coordination_lists":[
             {"name": ".     PVD D DEP","id": "D", "airports": ["KPVD"]},
-            {"name": ".     EWB DEP", "id": "N", "airports": ["KEWB"]},
             {"name": ".     OQU DEP", "id": "Q", "airports": ["KOQU"]}
         ],
         "display_handoff_facility_only": false,
@@ -635,9 +627,9 @@
           }
         },
         "significant_points":{ 
-            "7TN": {},
-            "7WH": {},
-            "DNE": {},
+            "7TN": {"location": "N041.26.12.000,W071.01.50.000"},
+            "7WH": {"location": "N041.12.22.000,W071.51.46.000"},
+            "DNE": {"location": "N042.04.50.000,W070.59.03.000"},
             "ORW": {},
             "PUT": {}
         },
@@ -663,12 +655,6 @@
                 },
                 "1T":{
                     "tcp_name": "Local",
-                    "facility_id": "NCA",
-                    "terminal_sector": "A",
-                    "excluded_exit_fixes":[]
-                },
-                "1E":{
-                    "tcp_name": "New Bedford Tower",
                     "facility_id": "NCA",
                     "terminal_sector": "A",
                     "excluded_exit_fixes":[]

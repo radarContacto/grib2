@@ -455,10 +455,10 @@ func (sp *STARSPane) executeSTARSCommand(ctx *panes.Context, cmd string, tracks 
 		}
 		return
 	}
-
 	// setFPParseContext expects a pointer to STARSFacilityAdaptation; pass
 	// the address of the struct stored on the client state.
 	cleanup := setFPParseContext(&ctx.Client.State.STARSFacilityAdaptation, ctx.Client.State.TRACON)
+
 	defer cleanup()
 
 	ps := sp.currentPrefs()

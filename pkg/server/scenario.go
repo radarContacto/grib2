@@ -33,6 +33,7 @@ type scenarioGroup struct {
 	Scenarios          map[string]*scenario       `json:"scenarios"`
 	DefaultScenario    string                     `json:"default_scenario"`
 	ControlPositions   map[string]*av.Controller  `json:"control_positions"`
+	Facilities         map[string]*av.Facility    `json:"facilities"`
 	Airspace           av.Airspace                `json:"airspace"`
 	InboundFlows       map[string]*av.InboundFlow `json:"inbound_flows"`
 	VFRReportingPoints []av.VFRReportingPoint     `json:"vfr_reporting_points"`
@@ -684,6 +685,9 @@ func (sg *scenarioGroup) PostDeserialize(multiController bool, e *util.ErrorLogg
 	manifest *sim.VideoMapManifest) {
 	defer e.CheckDepth(e.CurrentDepth())
 
+	// Convert facilities-based controller definitions, if present.
+	sg.expandFacilities(e)
+
 	// Rewrite legacy files to be TCP-based.
 	sg.rewriteControllers(e)
 
@@ -906,6 +910,48 @@ func (sg *scenarioGroup) PostDeserialize(multiController bool, e *util.ErrorLogg
 	}
 
 	initializeSimConfigurations(sg, simConfigurations, multiController, e)
+}
+
+func (sg *scenarioGroup) expandFacilities(e *util.ErrorLogger) {
+	if len(sg.Facilities) == 0 {
+		return
+	}
+	if sg.ControlPositions == nil {
+		sg.ControlPositions = make(map[string]*av.Controller)
+	}
+	for id, fac := range sg.Facilities {
+		for _, cp := range fac.ControlPositions {
+			var pos string
+			switch fac.FacilityType {
+			case "A", "T":
+				pos = id + "_" + cp.SectorRoutingID
+			default:
+				pos = cp.SectorRoutingID
+			}
+
+			ctrl := &av.Controller{
+				RadioName: cp.RadioName,
+				Frequency: cp.Frequency,
+				TCP:       cp.SectorRoutingID,
+				Facility:  id,
+			}
+
+			switch fac.FacilityType {
+			case "A":
+				ctrl.FacilityIdentifier = fac.AbbreviatedFacilityID
+				ctrl.ERAMFacility = true
+				if fac.AbbreviatedFacilityID != "" {
+					ctrl.TCP = fac.AbbreviatedFacilityID + cp.SectorRoutingID
+				}
+			case "T":
+				if fac.AdjacentTRACONID != 0 {
+					ctrl.FacilityIdentifier = strconv.Itoa(fac.AdjacentTRACONID)
+				}
+			}
+
+			sg.ControlPositions[pos] = ctrl
+		}
+	}
 }
 
 func (sg *scenarioGroup) rewriteControllers(e *util.ErrorLogger) {

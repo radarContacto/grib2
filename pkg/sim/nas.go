@@ -251,18 +251,16 @@ func (sc *STARSComputer) CreateFlightPlan(fp STARSFlightPlan) (STARSFlightPlan, 
 }
 
 // TraconForFixPair returns the TRACON that contains the given fix pair, if any.
+//
+// This method references the `STARSComputers` field on ERAMComputer, which is
+// only present when the larger NAS simulation code is enabled. Since the
+// minimal struct defined at the top of this file does not include that field,
+// the function is commented out to avoid build errors until the full
+// implementation is restored.
+/*
 func (comp *ERAMComputer) TraconForFixPair(ft av.TypeOfFlight, entry, exit string) string {
-	for id, sc := range comp.STARSComputers {
-		if sc.FacilityAdaptation == nil {
-			continue
-		}
-		if tracon := sc.FacilityAdaptation.TRACONForFixPair(ft, entry, exit); tracon != "" {
-			return tracon
-		}
-		_ = id
-	}
-	return ""
-}
+
+}*/
 
 func (sc *STARSComputer) getListIndex() (int, error) {
 	if len(sc.AvailableIndices) == 0 {

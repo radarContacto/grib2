@@ -368,27 +368,6 @@ type FilterRegion struct {
 
 type FilterRegions []FilterRegion
 
-type TCPSpec struct {
-	TCPName           string   `json:"tcp_name"`
-	FacilityID        string   `json:"facility_id"`
-	TerminalSector    string   `json:"terminal_sector"`
-	ExcludedExitFixes []string `json:"excluded_exit_fixes"`
-}
-
-type SectorConfiguration struct {
-	ConfigurationID      string `json:"configuration_id"`
-	ConfigurationName    string `json:"configuration_name"`
-	DefaultConfiguration bool   `json:"default_configuration"`
-}
-
-type FixPairTCPAssignment struct {
-	Configuration []string `json:"configuration"`
-	FlightType    string   `json:"flight_type"`
-	EntryFix      string   `json:"entry_fix"`
-	ExitFix       string   `json:"exit_fix"`
-	TCP           string   `json:"tcp"`
-}
-
 func flightTypeFromString(s string) av.TypeOfFlight {
 	switch strings.ToLower(s) {
 	case "departure":
@@ -413,14 +392,6 @@ func flightTypeToString(t av.TypeOfFlight) string {
 	default:
 		return ""
 	}
-}
-
-func (fa *STARSFacilityAdaptation) TCPForFixPair(tracon string, ft av.TypeOfFlight, entry, exit string) string {
-	cfg, ok := fa.TCPConfiguration.FixPairConfiguration[tracon]
-	if !ok {
-		return ""
-	}
-	return tcpForFixPair(cfg, ft, entry, exit)
 }
 
 type STARSControllerConfig struct {

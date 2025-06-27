@@ -21,11 +21,6 @@ type SectorConfiguration struct {
 	DefaultConfiguration bool   `json:"default_configuration"`
 }
 
-type TCPConfiguration struct {
-	TCPs                 map[string]TCPSpec                       `json:"tcps"`
-	FixPairConfiguration map[string]*FixPairFacilityConfiguration `json:"fix_pair_configuration"`
-}
-
 func flightTypeString(ft av.TypeOfFlight) string {
 	switch ft {
 	case av.FlightTypeArrival:
@@ -61,13 +56,12 @@ func tcpForFixPair(cfg *FixPairFacilityConfiguration, ft av.TypeOfFlight, entry,
 
 // TCPForFixPair returns the TCP for the given fix pair using the active
 // default sector configuration.
-func (fa STARSFacilityAdaptation) TCPForFixPair(ft av.TypeOfFlight, entry, exit string) string {
-	for _, fac := range fa.TCPConfiguration.FixPairConfiguration {
-		if tcp := tcpForFixPair(fac, ft, entry, exit); tcp != "" {
-			return tcp
-		}
+func (fa *STARSFacilityAdaptation) TCPForFixPair(tracon string, ft av.TypeOfFlight, entry, exit string) string {
+	cfg, ok := fa.TCPConfiguration.FixPairConfiguration[tracon]
+	if !ok {
+		return ""
 	}
-	return ""
+	return tcpForFixPair(cfg, ft, entry, exit)
 }
 
 // TRACONForFixPair returns the TRACON whose configuration contains the given

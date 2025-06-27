@@ -1117,14 +1117,14 @@ func (s *Sim) createArrivalNoLock(group string, arrivalAirport string) (*Aircraf
 	}
 
 	if starsFp.TrackingController == "" {
-		tcp := s.State.STARSFacilityAdaptation.TCPForFixPair(av.FlightTypeOverflight, starsFp.EntryFix, starsFp.ExitFix)
+		tcp := s.State.STARSFacilityAdaptation.TCPForFixPair(s.State.TRACON, av.FlightTypeOverflight, starsFp.EntryFix, starsFp.ExitFix)
 		if tcp != "" {
 			starsFp.TrackingController = tcp
 		}
 	}
 
 	if starsFp.TrackingController == "" {
-		tcp := s.State.STARSFacilityAdaptation.TCPForFixPair(av.FlightTypeArrival, starsFp.EntryFix, starsFp.ExitFix)
+		tcp := s.State.STARSFacilityAdaptation.TCPForFixPair(s.State.TRACON, av.FlightTypeArrival, starsFp.EntryFix, starsFp.ExitFix)
 		if tcp != "" {
 			starsFp.TrackingController = tcp
 		}
@@ -1354,7 +1354,7 @@ func (s *Sim) createIFRDepartureNoLock(departureAirport, runway, category string
 	starsFp.InboundHandoffController = selectDepartureHandoff(dep, int(ac.FlightPlan.Altitude), starsFp.InboundHandoffController)
 
 	if starsFp.TrackingController == "" {
-		tcp := s.State.STARSFacilityAdaptation.TCPForFixPair(av.FlightTypeDeparture, starsFp.EntryFix, starsFp.ExitFix)
+		tcp := s.State.STARSFacilityAdaptation.TCPForFixPair(s.State.TRACON, av.FlightTypeDeparture, starsFp.EntryFix, starsFp.ExitFix)
 		if tcp != "" {
 			starsFp.TrackingController = tcp
 		}

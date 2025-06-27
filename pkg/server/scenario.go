@@ -78,6 +78,7 @@ func (s *scenario) convertCodex() {
 	if s.SoloConfiguration != nil || s.MultiConfiguration != nil || len(s.VirtualPositions) > 0 {
 		s.CodexScenario = true
 	}
+
 	if s.SoloConfiguration != nil {
 		if s.SoloController == "" {
 			controllers := util.SortedMapKeys(s.SoloConfiguration.SoloPosition)
@@ -151,7 +152,7 @@ type scenario struct {
 	VFRRateScale *float32      `json:"vfr_rate_scale"`
 
 	// fix pair fields for backwards compatibility
-	SoloConfiguration  *soloConfiguration          `json:"solo__configuration"`
+	SoloConfiguration  *soloConfiguration          `json:"solo_configuration"`
 	MultiConfiguration *multiConfiguration         `json:"multi_configuration"`
 	VirtualPositions   map[string]*virtualPosition `json:"virtual_positions"`
 }
@@ -395,30 +396,29 @@ func (s *scenario) PostDeserialize(sg *scenarioGroup, e *util.ErrorLogger, manif
 					}
 				}
 			}
-
 			if _, ok := sg.ControlPositions[callsign]; !ok {
-				e.ErrorString("controller %q not defined in the scenario group's \"control_positions\"", callsign)
-			}
+					e.ErrorString("controller %q not defined in the scenario group's \"control_positions\"", callsign)
+				}
 
 			// Make sure any airports claimed for departures are valid
-			for _, airportSID := range ctrl.Departures {
-				ap, sidRunway, haveSIDRunway := strings.Cut(airportSID, "/")
-				if sids, ok := activeAirportSIDs[ap]; !ok {
-					e.ErrorString("airport %q is not departing aircraft in this scenario", ap)
-				} else if haveSIDRunway {
-					// If there's something after a slash, make sure it's
-					// either a valid SID or runway.
-					_, okSID := sids[sidRunway]
-					_, okRunway := activeAirportRunways[ap][sidRunway]
-					if !okSID && !okRunway {
-						e.ErrorString("%q at airport %q is neither an active runway or SID in this scenario", sidRunway, ap)
-					}
+				for _, airportSID := range ctrl.Departures {
+					ap, sidRunway, haveSIDRunway := strings.Cut(airportSID, "/")
+					if sids, ok := activeAirportSIDs[ap]; !ok {
+						e.ErrorString("airport %q is not departing aircraft in this scenario", ap)
+					} else if haveSIDRunway {
+						// If there's something after a slash, make sure it's
+						// either a valid SID or runway.
+						_, okSID := sids[sidRunway]
+						_, okRunway := activeAirportRunways[ap][sidRunway]
+						if !okSID && !okRunway {
+							e.ErrorString("%q at airport %q is neither an active runway or SID in this scenario", sidRunway, ap)
+						}
 
 					haveDepartureSIDSpec = haveDepartureSIDSpec || okSID
-					haveDepartureRunwaySpec = haveDepartureRunwaySpec || okRunway
-					if haveDepartureSIDSpec && haveDepartureRunwaySpec {
-						e.ErrorString("cannot use both runways and SIDs to specify the departure controller")
-					}
+						haveDepartureRunwaySpec = haveDepartureRunwaySpec || okRunway
+						if haveDepartureSIDSpec && haveDepartureRunwaySpec {
+							e.ErrorString("cannot use both runways and SIDs to specify the departure controller")
+						}
 				}
 			}
 
